@@ -1,0 +1,92 @@
+.m-5{
+    margin: 5px;
+}
+
+.m-x-5{
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.m-y-5{
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.m-l-5{
+    margin-left: 5px;
+}
+
+.m-r-5{
+    margin-right: 5px;
+}
+
+.m-t-5{
+    margin-top: 5px;
+}
+
+.m-b-5{
+    margin-bottom: 5px;
+}
+
+.m-10{
+    margin: 10px;
+}
+
+.m-x-10{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.m-y-10{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.m-l-10{
+    margin-left: 10px;
+}
+
+.m-r-10{
+    margin-right: 10px;
+}
+
+.m-t-10{
+    margin-top: 10px;
+}
+
+.m-b-10{
+    margin-bottom: 10px;
+}
+
+.bg-default{
+    background-color: #00c292;
+    color: white;
+}
+
+button.no-border{
+    border: none !important;
+}
+
+button.bg-white{
+    background-color: white;
+    color: #00c292;
+    border-color: #00c292;
+}
+
+button.bg-white:hover, button.bg-white:active, button.bg-white:focus{
+    background-color: #00c292;
+    color: white !important;
+}
+
+button.bg-default{
+    background-color: #00c292;
+    color: white;
+}
+
+button.bg-default:hover, button.bg-default:active, button.bg-default:focus{
+    color: white !important;
+}
+
+.drop-topmenu .dropdown-menu{
+    left: inherit;
+}

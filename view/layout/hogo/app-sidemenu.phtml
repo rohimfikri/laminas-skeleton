@@ -1,0 +1,230 @@
+<?php
+$mainrole =($this->identity()['main_role']!="")?$this->identity()['roles'][$this->identity()['main_role']]['name']:"";
+$mainubis =($this->identity()['main_ubis']!="")?$this->identity()['ubis'][$this->identity()['main_ubis']]['name']:"";
+$mainubiscode =($this->identity()['main_ubis']!="" && isset($this->identity()['ubis'][$this->identity()['main_ubis']]))?$this->identity()['ubis'][$this->identity()['main_ubis']]['code']:"";
+$mainubislevel =($this->identity()['main_ubis']!="" && isset($this->identity()['ubis'][$this->identity()['main_ubis']]))?$this->identity()['ubis'][$this->identity()['main_ubis']]['level']:"";
+$mainubis = wordwrap($mainubis, 20, "<br>", false);
+$ubis = $this->identity()['ubiscode'];
+$ubisparent = $this->identity()['ubisparent'];
+// var_dump($ubisparent);//die();
+// var_dump($ubisparent);//die();
+?>
+<div class="app-sidebar__overlay" data-toggle="sidebar"></div>
+<aside class="app-sidebar">
+    <div class="app-sidebar__user pb-0">
+        <div class="user-body">
+            <span class="avatar avatar-xxl brround text-center cover-image"
+                data-image-src="<?= $this->basePath("/vendor/hogo/assets/images/users/female/33.png"); ?>"></span>
+        </div>
+        <div class="user-info mt-3">
+            <a href="#" class="ml-2">
+                <span class="text-dark app-sidebar__user-name font-weight-semibold"><?= $this->identity()['username']; ?> </span><br>
+                <span class="text-muted app-sidebar__user-name text-sm"> <?= $mainubis; ?></span>
+            </a>
+        </div>
+    </div>
+
+    <div class="tab-menu-heading siderbar-tabs border-0 p-0">
+        <div class="tabs-menu ">
+            <!-- Tabs -->
+            <ul class="nav panel-tabs">
+                <li>
+                    <a href="<?= $this->url('front/auth',['action'=>'logout']); ?>" title="logout">
+                        <i class="fa fa-power-off fs-17"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="panel-body tabs-menu-body side-tab-body p-0 border-0 ">
+        <div class="tab-content">
+            <div class="tab-pane active" id="index1">
+                <div class="row row-demo-list">
+                    <div id="parentVerticalTab" class="col-md-12">
+                        <ul class="resp-tabs-list hor_1">
+                            <li class="<?= ($this->active_menu=="dashboard")?"resp-tab-active active":""; ?>"><i class="side-menu__icon typcn typcn-device-desktop"></i></li>
+                            <li class="<?= ($this->active_menu=="strategyformula")?"resp-tab-active active":""; ?>"><i class="side-menu__icon typcn typcn-edit"></i></li>
+                            <li class="<?= ($this->active_menu=="strategyimplemen")?"resp-tab-active active":""; ?>"><i class="side-menu__icon typcn typcn-export-outline"></i></li>
+                            <li class="<?= ($this->active_menu=="admin")?"resp-tab-active active":""; ?>"><i class="side-menu__icon typcn typcn-cog-outline"></i></li>
+                        </ul>
+                        <div class="resp-tabs-container hor_1">
+                            <div class="<?= ($this->active_menu=="dashboard")?"resp-tab-content-active active":""; ?>">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4 class="font-weight-bold">DASHBOARD</h4>
+                                        <?php
+                                            if (in_array($mainrole,["DIREKTUR","ADMIN"]) && $mainubislevel=="DIREKTORAT") {
+                                        ?>
+                                        <hr class="m-4"/>
+                                        <h5 class="font-weight-semibold text-white">DIREKTORAT</h5>
+                                        <?php
+                                                if (in_array($mainrole,["DIREKTUR","ADMIN"]) && $mainubiscode=="DU") {
+                                        ?>
+                                        <a href="<?= $this->url('Dashboard/BoD', ['dir'=>'DU']); ?>" class="slide-item">Utama</a>
+                                        <?php
+                                                }
+                                                if (($mainrole=="DIREKTUR" && in_array($mainubiscode, ["DU", "DT"])) || ($mainrole=="ADMIN" && $mainubiscode=="DT")) {
+                                        ?>
+                                        <a href="<?= $this->url('Dashboard/BoD', ['dir'=>'DT']); ?>" class="slide-item">Teknik</a>
+                                        <?php
+                                                }
+                                                if (($mainrole=="DIREKTUR" && in_array($mainubiscode, ["DU", "DK"])) || ($mainrole=="ADMIN" && $mainubiscode=="DK")) {
+                                        ?>
+                                        <a href="<?= $this->url('Dashboard/BoD', ['dir'=>'DK']); ?>" class="slide-item">Keuangan dan Administrasi</a>
+                                        <?php
+                                                }
+                                                if (($mainrole=="DIREKTUR" && in_array($mainubiscode, ["DU", "DO"])) || ($mainrole=="ADMIN" && $mainubiscode=="DO")) {
+                                        ?>
+                                        <a href="<?= $this->url('Dashboard/BoD', ['dir'=>'DO']); ?>" class="slide-item">Operasi dan Pemasaran</a>
+                                        <?php
+                                                }
+                                            }
+                                        ?>
+                                        <?php
+                                            if (in_array($mainrole,["DIREKTUR","VP"]) || ($mainrole=="ADMIN" && $mainubislevel=="UNIT")) {
+                                        ?>
+                                        <hr class="m-4"/>
+                                        <h5 class="font-weight-semibold text-white">UNIT</h5>
+                                        <a href="<?= $this->url('Dashboard/Unit'); ?>" class="slide-item">Vice President (VP)</a>
+                                        <?php
+                                            }
+                                        ?>
+                                        <?php
+                                            if (in_array($mainrole,["DIREKTUR","VP","MANAGER"]) || ($mainrole=="ADMIN" && $mainubislevel=="DEPARTEMEN")) {
+                                        ?>
+                                        <hr class="m-4"/>
+                                        <h5 class="font-weight-semibold text-white">DEPARTEMEN</h5>
+                                        <a href="<?= $this->url('Dashboard/Department'); ?>" class="slide-item">Manajer</a>
+                                        <?php
+                                            }
+                                        ?>
+                                        <hr class="m-4"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="<?= ($this->active_menu=="strategyformula")?"resp-tab-content-active active":""; ?>">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4 class="font-weight-bold">FORMULA STRATEGI</h4>
+                                        <?php
+                                            if (in_array($mainrole,["DIREKTUR","ADMIN"]) && $mainubislevel=="DIREKTORAT") {
+                                        ?>
+                                        <hr class="m-4"/>
+                                        <a href="<?= $this->url('StrategicMap'); ?>" id="sm_strategicmap" class="slide-item">Peta Strategi</a>
+                                        <hr class="m-4"/>
+                                        <h5 class="font-weight-semibold text-white">Pengaturan Peta Strategi</h5>
+                                        <a href="<?= $this->url('StrategicMap/listsm'); ?>" class="slide-item">Daftar</a>
+                                        <a href="<?= $this->url('StrategicMap/addnewstrmap'); ?>" class="slide-item">Buat Baru</a>
+                                        <hr class="m-4"/>
+                                        <h5 class="font-weight-semibold text-white">Pengaturan Perspektif Strategi</h5>
+                                        <a href="<?= $this->url('StrategicMap/perspektif'); ?>" class="slide-item">Daftar</a>
+                                        <a href="<?= $this->url('StrategicMap/perspektif/addperspektif'); ?>" class="slide-item">Buat Baru</a>
+                                        <?php
+                                            }
+                                        ?>
+                                        <hr class="m-4"/>
+                                        <h5 class="font-weight-semibold text-white">Pengaturan Indikator Strategi</h5>
+                                        <a href="<?= $this->url('StrategicMap/indikator'); ?>" class="slide-item">Daftar</a>
+                                        <a href="<?= $this->url('StrategicMap/indikator/addindikator'); ?>" class="slide-item">Buat Baru</a>
+                                        <hr class="m-4"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="<?= ($this->active_menu=="strategyimplemen")?"resp-tab-content-active active":""; ?>">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4 class="font-weight-bold">Implementasi Strategi</h4>
+                                        <hr class="m-4"/>
+                                        <h5 class="font-weight-semibold text-white">KPI</h5>
+                                        <div class="side-menu p-0">
+                                            <?php
+                                                if (in_array($mainrole, ["DIREKTUR","ADMIN"]) && $mainubislevel=="DIREKTORAT") {
+                                            ?>
+                                            <div class="slide submenu">
+                                                <a class="side-menu__item" data-toggle="slide" href="#"><span class="side-menu__label">DIREKTORAT</span><i class="angle fa fa-angle-down"></i></a>
+                                                <ul class="slide-menu submenu-list">
+                                                    <li>
+                                                        <a href="<?= $this->url('StrategyImplemen/KPI/DIRECTOR/Report'); ?>" class="slide-item">Laporan</a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="<?= $this->url('StrategyImplemen/KPI/DIRECTOR/Input'); ?>" class="slide-item">Data</a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <?php
+                                                }
+                                            ?>
+                                            <?php
+                                                if (in_array($mainrole,["DIREKTUR","VP"]) || ($mainrole=="ADMIN" && $mainubislevel=="UNIT")) {
+                                            ?>
+                                            <div class="slide submenu">
+                                                <a class="side-menu__item" data-toggle="slide" href="#"><span class="side-menu__label">VP</span><i class="angle fa fa-angle-down"></i></a>
+                                                <ul class="slide-menu submenu-list">
+                                                    <li>
+                                                        <a href="<?= $this->url('StrategyImplemen/KPI/VP/Report'); ?>" class="slide-item">Laporan</a>
+                                                    </li>
+                                                    <?php
+                                                        if (in_array($mainrole,["ADMIN","VP"]) && $mainubislevel=="UNIT") {
+                                                    ?>
+                                                    <li>
+                                                        <a href="<?= $this->url('StrategyImplemen/KPI/VP/Input'); ?>" class="slide-item">Data</a>
+                                                    </li>
+                                                    <?php
+                                                        }
+                                                    ?>
+                                                </ul>
+                                            </div>
+                                            <?php
+                                                }
+                                            ?>
+                                            <?php
+                                                if (in_array($mainrole,["DIREKTUR","VP","MANAGER"]) || ($mainrole=="ADMIN" && $mainubislevel=="DEPARTEMEN")) {
+                                            ?>
+                                            <div class="slide submenu">
+                                                <a class="side-menu__item" data-toggle="slide" href="#"><span class="side-menu__label">MANAGER</span><i class="angle fa fa-angle-down"></i></a>
+                                                <ul class="slide-menu submenu-list">
+                                                    <li>
+                                                        <a href="<?= $this->url('StrategyImplemen/KPI/MANAGER/Report'); ?>" class="slide-item">Laporan</a>
+                                                    </li>
+                                                    <?php
+                                                        if (in_array($mainrole,["ADMIN","MANAGER"]) && $mainubislevel=="DEPARTEMEN") {
+                                                    ?>
+                                                    <li>
+                                                        <a href="<?= $this->url('StrategyImplemen/KPI/MANAGER/Input'); ?>" class="slide-item">Data</a>
+                                                    </li>
+                                                    <?php
+                                                        }
+                                                    ?>
+                                                </ul>
+                                            </div>
+                                            <?php
+                                                }
+                                            ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="<?= ($this->active_menu=="admin")?"resp-tab-content-active active":""; ?>">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4 class="font-weight-semibold">System Administration</h4>
+                                        <?php
+                                            if ($mainrole=="SUPERADMIN") {
+                                        ?>
+                                        <a href="<?= $this->url('Admin/manageuser'); ?>" class="slide-item">Manage User</a>
+                                        <a href="<?= $this->url('Admin/managerole'); ?>" class="slide-item">Manage Role</a>
+                                        <a href="<?= $this->url('Admin/manageubis'); ?>" class="slide-item">Manage Ubis</a>
+                                        <a href="<?= $this->url('Admin/managemenu'); ?>" class="slide-item">Manage Menu</a>
+                                        <?php
+                                            }
+                                        ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- col-4 -->
+            </div>
+        </div>
+    </div>
+</aside>

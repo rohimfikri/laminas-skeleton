@@ -1,0 +1,211 @@
+<?php
+use Zend\Debug\Debug;
+
+// Debug::dump($this);die();
+$active_menu = isset($this->active_menu) ? $this->active_menu : "";
+?>
+<!doctype html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="UTF-8">
+        <?= 
+            $this->headMeta()
+                ->appendName('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no')
+                ->appendHttpEquiv('X-UA-Compatible', 'IE=edge,chrome=1');
+        ?>
+        <meta content="Lamina Web App" name="description">
+        <meta content="HIM" name="author">
+        <meta name="keywords"
+            content="amerta, shinergy, strategic management, management, html admin, bootstrap admin, responsive admin, admin dashboard bootstrap, bootstrap admin premium, web admin, bootstrap admin, premium admin html5, best bootstrap admin, premium admin panel, admin template" />
+
+		<!-- Favicon -->
+		<link rel="icon" href="/c2f/vendor/hogo/assets/images/brand/favicon.ico" type="image/x-icon"/>
+		<link rel="shortcut icon" type="image/x-icon" href="/c2f/vendor/hogo/assets/images/brand/favicon.ico" />
+
+		<!-- Title -->
+        <?= $this->headTitle()->setAutoEscape(false) ?>
+
+		<!--Bootstrap.min css-->
+		<link rel="stylesheet" href="<?= $this->basePath("/vendor/hogo/assets/plugins/bootstrap/css/bootstrap.min.css"); ?>">
+
+		<!-- Dashboard css -->
+		<link href="<?= $this->basePath("/vendor/hogo/assets/css/style.css"); ?>" rel="stylesheet" />
+
+		<!-- Custom scroll bar css-->
+		<link href="<?= $this->basePath("/vendor/hogo/assets/plugins/scroll-bar/jquery.mCustomScrollbar.css"); ?>" rel="stylesheet" />
+
+		<!-- Sidemenu css -->
+		<link href="<?= $this->basePath("/vendor/hogo/assets/plugins/toggle-sidebar/full-sidemenu-dark.css"); ?>" rel="stylesheet" />
+
+		<!--Daterangepicker css-->
+		<link href="<?= $this->basePath("/vendor/hogo/assets/plugins/bootstrap-daterangepicker/daterangepicker.css"); ?>" rel="stylesheet" />
+
+		<!-- Rightsidebar css -->
+		<link href="<?= $this->basePath("/vendor/hogo/assets/plugins/sidebar/sidebar.css"); ?>" rel="stylesheet">
+
+		<!-- Sidebar Accordions css -->
+		<link href="<?= $this->basePath("/vendor/hogo/assets/plugins/accordion1/css/easy-responsive-tabs-dark.css"); ?>" rel="stylesheet">
+
+		<!-- Owl Theme css-->
+		<link href="<?= $this->basePath("/vendor/hogo/assets/plugins/owl-carousel/owl.carousel.css"); ?>" rel="stylesheet">
+
+		<!-- Morris  Charts css-->
+		<link href="<?= $this->basePath("/vendor/hogo/assets/plugins/morris/morris.css"); ?>" rel="stylesheet" />
+
+		<!---Font icons css-->
+		<link href="<?= $this->basePath("/vendor/hogo/assets/plugins/iconfonts/plugin.css"); ?>" rel="stylesheet" />
+		<link href="<?= $this->basePath("/vendor/hogo/assets/plugins/iconfonts/icons.css"); ?>" rel="stylesheet" />
+		<link  href="<?= $this->basePath("/vendor/hogo/assets/fonts/fonts/font-awesome.min.css"); ?>" rel="stylesheet">
+		<?= $this->headLink(); ?>
+        <?= $this->headStyle(); ?>
+	</head>
+
+	<body class="app sidebar-mini rtl">
+
+		<!--Global-Loader-->
+		<div id="global-loader">
+			<img src="<?= $this->basePath("/vendor/hogo/assets/images/icons/loader.svg"); ?>"" alt="loader">
+		</div>
+
+		<div class="page">
+			<div class="page-main">
+				<!--app-header-->
+				<?= $this->partial('hogo/app-header.phtml',[]); ?>
+				<!--app-header end-->
+
+            	<!-- Sidebar menu-->
+				<?= $this->partial('hogo/app-sidemenu.phtml',[
+					'active_menu' => $active_menu ?? ""
+				]); ?>
+                <!--End Sidebar submenu -->
+
+                <!-- app-content-->
+				<div class="app-content  my-3 my-md-5">
+					<!-- Breadcrumb menu-->
+					<?= (isset($this->breadcrumb_item) || isset($this->subtitle))?
+							$this->partial('hogo/head-submenu.phtml',[
+								'item' => isset($this->breadcrumb_item) ? $this->breadcrumb_item : [],
+								'subtitle' => isset($this->subtitle) ? $this->subtitle : ''
+							]) : ""; 
+					?>
+					<!--Breadcrumbsubmenu -->
+					<div class="side-app p-3">
+                        <?= $this->content ?>
+                    </div>
+                    <!--End side app-->
+
+
+                    <!-- Right-sidebar-->
+					<?= $this->partial('hogo/right-sidebar.phtml',[]); ?>
+                    <!-- End Rightsidebar-->
+
+					<!--footer-->
+					<footer class="footer">
+						<div class="container">
+							<div class="row align-items-center flex-row-reverse">
+								<div class="col-lg-12 col-sm-12   text-center">
+									Copyright © 2019 <a href="#">PT Amerta Teknologi Media</a> All rights reserved.
+								</div>
+							</div>
+						</div>
+					</footer>
+					<!-- End Footer-->
+
+				</div>
+				<!-- End app-content-->
+			</div>
+		</div>
+		<!-- End Page -->
+
+		<!-- Back to top -->
+		<a href="#top" id="back-to-top"><i class="fa fa-angle-up"></i></a>
+
+		<!-- Jquery js-->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/js/vendors/jquery-3.2.1.min.js"); ?>"></script>
+
+		<!--Bootstrap.min js-->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/bootstrap/popper.min.js"); ?>"></script>
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/bootstrap/js/bootstrap.min.js"); ?>"></script>
+
+		<!--Jquery Sparkline js-->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/js/vendors/jquery.sparkline.min.js"); ?>"></script>
+
+		<!-- Chart Circle js-->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/js/vendors/circle-progress.min.js"); ?>"></script>
+
+		<!-- Star Rating js-->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/rating/jquery.rating-stars.js"); ?>"></script>
+
+		<!--Moment js-->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/moment/moment.min.js"); ?>"></script>
+
+		<!-- Daterangepicker js-->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/bootstrap-daterangepicker/daterangepicker.js"); ?>"></script>
+
+		<!--Side-menu js-->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/toggle-sidebar/sidemenu.js"); ?>"></script>
+
+		<!-- Sidebar Accordions js -->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/accordion1/js/easyResponsiveTabs.js"); ?>"></script>
+
+		<!-- Custom scroll bar js-->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/scroll-bar/jquery.mCustomScrollbar.concat.min.js"); ?>"></script>
+
+		<!--Owl Carousel js -->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/owl-carousel/owl.carousel.js"); ?>"></script>
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/owl-carousel/owl-main.js"); ?>"></script>
+
+		<!-- Rightsidebar js -->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/sidebar/sidebar.js"); ?>"></script>
+
+		<!--Time Counter js-->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/counters/jquery.missofis-countdown.js"); ?>"></script>
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/counters/counter.js"); ?>"></script>
+
+		<!--Morris  Charts js-->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/morris/raphael-min.js"); ?>"></script>
+		<script src="<?= $this->basePath("/vendor/hogo/assets/plugins/morris/morris.js"); ?>"></script>
+
+		<!-- Custom js-->
+		<script src="<?= $this->basePath("/vendor/hogo/assets/js/custom.js"); ?>"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.11/js/bootstrap-select.min.js"></script>
+		<script>
+		/**
+		 * sends a request to the specified url from a form. this will change the window location.
+		 * @param {string} path the path to send the post request to
+		 * @param {object} params the paramiters to add to the url
+		 * @param {string} [method=post] the method to use on the form
+		 */
+
+		function post(path, params, method='post') {
+			$("#global-loader").css("opacity",0.5);
+			$("#global-loader").fadeIn();
+			// The rest of this code assumes you are not using a library.
+			// It can be made less wordy if you use one.
+			const form = document.createElement('form');
+			form.method = method;
+			form.action = path;
+
+			for (const key in params) {
+			if (params.hasOwnProperty(key)) {
+				const hiddenField = document.createElement('input');
+				hiddenField.type = 'hidden';
+				hiddenField.name = key;
+				hiddenField.value = params[key];
+
+				form.appendChild(hiddenField);
+			}
+			}
+
+			document.body.appendChild(form);
+			form.submit();
+		}
+		</script>
+		
+		<?= $this->headScript()?>
+		
+        <?= $this->inlineScript() ?>
+	</body>
+</html>

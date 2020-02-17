@@ -1,0 +1,222 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <?= 
+        $this->headMeta()
+            ->appendName('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no')
+            ->appendHttpEquiv('X-UA-Compatible', 'IE=edge,chrome=1');
+    ?>
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <?= $this->headTitle()->setAutoEscape(false) ?>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- favicon
+		============================================ -->
+    <link rel="shortcut icon" type="image/x-icon" href="<?= $this->basePath("img/favicon.ico"); ?>">
+    <!-- Google Fonts
+		============================================ -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet">
+    <!-- Bootstrap CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/bootstrap.min.css"); ?>">
+    <!-- Bootstrap CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/font-awesome.min.css"); ?>">
+    <!-- owl.carousel CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/owl.carousel.css"); ?>">
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/owl.theme.css"); ?>">
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/owl.transitions.css"); ?>">
+    <!-- meanmenu CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/meanmenu/meanmenu.min.css"); ?>">
+    <!-- animate CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/animate.css"); ?>">
+    <!-- normalize CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/normalize.css"); ?>">
+    <!-- mCustomScrollbar CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/scrollbar/jquery.mCustomScrollbar.min.css"); ?>">
+    <!-- jvectormap CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/jvectormap/jquery-jvectormap-2.0.3.css"); ?>">
+    <!-- notika icon CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/notika-custom-icon.css"); ?>">
+    <!-- wave CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/wave/waves.min.css"); ?>">
+    <!-- main CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/main.css"); ?>">
+    <!-- style CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/style.css"); ?>">
+    <!-- responsive CSS
+		============================================ -->
+    <link rel="stylesheet" href="<?= $this->basePath("/vendor/notika/css/responsive.css"); ?>">
+    <link rel="stylesheet" href="<?= $this->basePath("/css/notika/custom.css"); ?>">
+    <!-- modernizr JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/vendor/modernizr-2.8.3.min.js"); ?>"></script>
+    <style>
+        #logo-head {
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        a.nav-link .spinner4{
+            left: 13px;
+        }
+
+        a.nav-link .ntd-ctn{
+            left: 20px;
+        }
+
+        ul.notika-main-menu-dropdown li.active a{
+            color: #00c292 !important;
+            text-decoration: underline;
+        }
+    </style>
+    <?= $this->headLink(); ?>
+    <?= $this->headStyle(); ?>
+</head>
+
+<body>
+    <?php
+      $content = $this->content;
+      $vars = $this->vars();
+      unset($vars['content']);
+    ?>
+    <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+    <!-- Start Header Top Area -->
+    <?= $this->partial('notika/header-top.phtml',[
+        'vars'=>$vars
+    ]); ?>
+    <!-- End Header Top Area -->
+    <!-- Mobile Menu start -->
+    <?= $this->partial('notika/mobile-menu.phtml',[
+        'vars'=>$vars
+    ]); ?>
+    <!-- Mobile Menu end -->
+    <!-- Main Menu area start-->
+    <?= $this->partial('notika/main-menu.phtml',[
+        'vars'=>$vars
+    ]); ?>
+    <!-- Main Menu area End-->
+    
+    <?= $content ?>
+
+    <!-- Start Footer area-->
+    <div class="footer-copyright-area">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="footer-copy-right">
+                        <p>
+                          Copyright BacangHaneut © 2020 . All rights reserved. 
+                          Template by <a href="https://colorlib.com">Colorlib</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Footer area-->
+    <!-- jquery
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/vendor/jquery-1.12.4.min.js"); ?>"></script>
+    <!-- bootstrap JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/bootstrap.min.js"); ?>"></script>
+    <!-- wow JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/wow.min.js"); ?>"></script>
+    <!-- price-slider JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/jquery-price-slider.js"); ?>"></script>
+    <!-- owl.carousel JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/owl.carousel.min.js"); ?>"></script>
+    <!-- scrollUp JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/jquery.scrollUp.min.js"); ?>"></script>
+    <!-- meanmenu JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/meanmenu/jquery.meanmenu.js"); ?>"></script>
+    <!-- counterup JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/counterup/jquery.counterup.min.js"); ?>"></script>
+    <script src="<?= $this->basePath("/vendor/notika/js/counterup/waypoints.min.js"); ?>"></script>
+    <script src="<?= $this->basePath("/vendor/notika/js/counterup/counterup-active.js"); ?>"></script>
+    <!-- mCustomScrollbar JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/scrollbar/jquery.mCustomScrollbar.concat.min.js"); ?>"></script>
+    <!-- jvectormap JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/jvectormap/jquery-jvectormap-2.0.2.min.js"); ?>"></script>
+    <script src="<?= $this->basePath("/vendor/notika/js/jvectormap/jquery-jvectormap-world-mill-en.js"); ?>"></script>
+    <script src="<?= $this->basePath("/vendor/notika/js/jvectormap/jvectormap-active.js"); ?>"></script>
+    <!-- sparkline JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/sparkline/jquery.sparkline.min.js"); ?>"></script>
+    <script src="<?= $this->basePath("/vendor/notika/js/sparkline/sparkline-active.js"); ?>"></script>
+    <!-- sparkline JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/flot/jquery.flot.js"); ?>"></script>
+    <script src="<?= $this->basePath("/vendor/notika/js/flot/jquery.flot.resize.js"); ?>"></script>
+    <script src="<?= $this->basePath("/vendor/notika/js/flot/curvedLines.js"); ?>"></script>
+    <script src="<?= $this->basePath("/vendor/notika/js/flot/flot-active.js"); ?>"></script>
+    <!-- knob JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/knob/jquery.knob.js"); ?>"></script>
+    <script src="<?= $this->basePath("/vendor/notika/js/knob/jquery.appear.js"); ?>"></script>
+    <script src="<?= $this->basePath("/vendor/notika/js/knob/knob-active.js"); ?>"></script>
+    <!--  wave JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/wave/waves.min.js"); ?>"></script>
+    <script src="<?= $this->basePath("/vendor/notika/js/wave/wave-active.js"); ?>"></script>
+    <!--  todo JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/todo/jquery.todo.js"); ?>"></script>
+    <!-- plugins JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/plugins.js"); ?>"></script>
+	<!--  Chat JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/chat/moment.min.js"); ?>"></script>
+    <!-- <script src="<?= $this->basePath("/vendor/notika/js/chat/jquery.chat.js"); ?>"></script> -->
+    <!-- main JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/main.js"); ?>"></script>
+	<!-- tawk chat JS
+		============================================ -->
+    <script src="<?= $this->basePath("/vendor/notika/js/tawk-chat.js"); ?>"></script>
+    <script>
+    $(document).ready(function(){
+        $(".notika-menu-wrap li a").on("click",function(){
+            $(".notika-menu-wrap li a.active").removeClass("active");
+            $(".notika-menu-wrap li.active").removeClass("active");
+            $(".tab-content.custom-menu-content .tab-pane.active").removeClass("active");
+            const aDOM = $(this).addClass("active");
+            let id = $(this).data('target');
+            // console.log(id);
+            const liDOM = $(this).parent().addClass("active");
+            $(".tab-content.custom-menu-content "+id).addClass("active");
+        });
+    });
+    </script>
+
+    <?= $this->headScript()?>
+    
+    <?= $this->inlineScript() ?>
+</body>
+
+</html>

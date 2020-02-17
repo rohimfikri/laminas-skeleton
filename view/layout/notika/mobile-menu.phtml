@@ -1,0 +1,119 @@
+<?php 
+    use Laminas\Router\Exception as LaminasException;
+    // !d($this->vars,$this->identity()); 
+    $this->notikaMobileMenu()->setVars($this->vars);
+    $this->notikaMobileMenu()->setIdentity($this->identity());
+    $this->notikaMobileMenu()->reloadMenu();
+    $topMenu = $this->notikaMobileMenu()->getTopMenu();
+    $menuLvl1 = $this->notikaMobileMenu()->getMenu1();
+    $menuLvl2 = $this->notikaMobileMenu()->getMenu2();
+    $menuLvl3 = $this->notikaMobileMenu()->getMenu3();
+    // !d($topMenu,$menuLvl1,$menuLvl2,$menuLvl3);//die(); 
+?>
+<div class="mobile-menu-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="mobile-menu">
+                    <nav id="dropdown">
+                        <ul class="mobile-menu-nav">
+                            <li><a data-toggle="collapse" data-target="#Home" href="#"><i class="notika-icon notika-house"></i> Home</a>
+                                <ul class="collapse dropdown-header-top" id="Home">
+                                    <?php
+                                        // !d($topMenu);
+                                        foreach ($topMenu as $k=>$v){
+                                            $link = $v['link'];
+                                            if($link=="" || $link=="#"){
+                                                if($v['route_link']!=""){
+                                                    try{
+                                                        $link = $this->url($v['route_link'],$v['route_param'],$v['route_query']);
+                                                    }catch(LaminasException\RuntimeException $e){
+                                                        // !d($e);die();
+                                                        $link = "#";
+                                                    }
+                                                }
+                                            }
+                                    ?>
+                                        <li>
+                                            <a href="<?= $link; ?>"><i class="<?= $v['icon']; ?>"></i> <?= $v['title']; ?></a>
+                                        </li>
+                                    <?php
+                                        }
+                                    ?>
+                                </ul>
+                            </li>
+                            <?php
+                                foreach ($menuLvl1 as $k=>$v){
+                                    $link = $v['link'];
+                            ?>
+                                <li>
+                                    <a data-toggle="collapse" data-target="#<?= $link; ?>" href="#"><i class="<?= $v['icon']; ?>"></i> <?= $v['title']; ?></a>
+                                    <ul id="<?= $link; ?>" class="collapse dropdown-header-top">
+                                        <?php
+                                            if(isset($menuLvl2[$k])){
+                                                foreach ($menuLvl2[$k] as $k2=>$v2) {
+                                                    $link = $v2['link'];
+                                                    if (isset($v2['hasChild']) && $v2['hasChild']) {
+                                        ?>
+                                                        <li>
+                                                            <a data-toggle="collapse" data-target="#<?= $link; ?>" href="#""><i class="<?= $v2['icon']; ?>"></i> <?= $v2['title']; ?></a>
+                                                            <ul id="<?= $link; ?>" class="collapse dropdown-header-top">
+                                        <?php
+                                                            if (isset($menuLvl3[$link])) {
+                                        ?>
+                                                                
+                                                            <?php
+                                                                foreach ($menuLvl3[$link] as $k3=>$v3) {
+                                                                    $link = $v3['link'];
+                                                                    if ($link=="" || $link=="#") {
+                                                                        if ($v3['route_link']!="") {
+                                                                            try {
+                                                                                $link = $this->url($v3['route_link'], $v3['route_param'], $v3['route_query']);
+                                                                            } catch (LaminasException\RuntimeException $e) {
+                                                                                $link = "#";
+                                                                            }
+                                                                        }
+                                                                    } ?>
+                                                                <li><a href="<?= $link; ?>"><i class="<?= $v3['icon']; ?>"></i> <?= $v3['title']; ?></a></li>
+                                                            <?php
+                                                                } 
+                                                            ?>
+                                                                
+                                            <?php
+                                                            }
+                                            ?>
+
+                                                            </ul>
+                                                        </li>
+                                            <?php
+                                                    } else {
+                                                        if ($link=="" || $link=="#") {
+                                                            if ($v2['route_link']!="") {
+                                                                try {
+                                                                    $link = $this->url($v2['route_link'], $v2['route_param'], $v2['route_query']);
+                                                                } catch (LaminasException\RuntimeException $e) {
+                                                                    // !d($e);die();
+                                                                    $link = "#";
+                                                                }
+                                                            }
+                                                        } ?>
+                                                        <li>
+                                                            <a href="<?= $link; ?>"><i class="<?= $v2['icon']; ?>"></i> <?= $v2['title']; ?></a>
+                                                        </li>
+                                            <?php
+                                                    }
+                                                }
+                                            }
+                                        ?>
+                                    </ul>
+                                </li>
+                            <?php
+                                }
+                            ?>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,121 @@
+<?php
+$mainubis =($this->identity()['main_ubis']!="" && isset($this->identity()['ubis'][$this->identity()['main_ubis']]))?$this->identity()['ubis'][$this->identity()['main_ubis']]['name']:"";
+$mainubis = wordwrap($mainubis, 20, "<br>", false);
+?>
+<div class="sidebar sidebar-right sidebar-animate">
+    <div class="tab-menu-heading siderbar-tabs border-0">
+        <div class="tabs-menu ">
+            <!-- Tabs -->
+            <ul class="nav panel-tabs">
+                <li class="d-none"><a href="#tab" class="active" data-toggle="tab">Profile</a></li>
+                <!-- <li class=""><a href="#tab1" data-toggle="tab">Chat</a></li>
+                <li><a href="#tab2" data-toggle="tab">Activity</a></li>
+                <li><a href="#tab3" data-toggle="tab">Todo</a></li> -->
+            </ul>
+        </div>
+    </div>
+    <div class="panel-body tabs-menu-body side-tab-body p-0 border-0 ">
+        <div class="tab-content border-top">
+            <div class="tab-pane active " id="tab">
+                <div class="card-body p-0">
+                    <div class="header-user text-center mt-4 pb-4">
+                        <span class="avatar avatar-xxl brround"><img
+                                src="<?= $this->basePath("/vendor/hogo/assets/images/users/female/33.png"); ?>"" alt="Profile-img"
+                                class="avatar avatar-xxl brround"></span>
+                        <div class="dropdown-item text-center font-weight-semibold user h3 mb-0"><?= $this->identity()['username']; ?></div>
+                        <small><?= $mainubis; ?></small>
+                        <!-- <div class="card-body">
+                            <div class="form-group ">
+                                <label class="form-label  text-left">Offline/Online</label>
+                                <select class="form-control select2 " data-placeholder="Choose one">
+                                    <option label="Choose one">
+                                    </option>
+                                    <option value="1">Online</option>
+                                    <option value="2">Offline</option>
+                                </select>
+                            </div>
+                        </div> -->
+                    </div>
+                    <div class="card-body border-top">
+                        <div class="row">
+                            <div class="col-6 text-center border">
+                                <a class="" href=""><i class="dropdown-icon fa fa-envelope fs-30 m-0 leading-tight"></i></a>
+                                <div>Inbox</div>
+                            </div>
+                            <div class="col-6 text-center border">
+                                <a class="" href="<?= $this->url('front/auth',['action'=>'logout']); ?>"><i class="dropdown-icon fa fa-power-off fs-30 m-0 leading-tight"></i></a>
+                                <div>Log Out</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="tab1">
+                <div class="chat">
+                    <div class="contacts_card">
+                        <div class="input-group p-3">
+                            <input type="text" placeholder="Search..." class="form-control search">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text search_btn  "><i
+                                        class="fa fa-search"></i></span>
+                            </div>
+                        </div>
+                        <ul class="contacts mb-0">
+                            <li class="active">
+                                <div class="d-flex bd-highlight">
+                                    <div class="img_cont">
+                                        <img src="<?= $this->basePath("/vendor/hogo/assets/images/users/male/3.jpg"); ?>""
+                                            class="rounded-circle user_img" alt="img">
+                                        <span class="online_icon"></span>
+                                    </div>
+                                    <div class="user_info">
+                                        <h6 class="mt-1 mb-0 ">Maryam Naz</h6>
+                                        <small class="text-muted">Maryam is online</small>
+                                    </div>
+                                    <div class="float-right text-right ml-auto mt-auto mb-auto">
+                                        <small>01-02-2019</small></div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane  " id="tab2">
+                <div class="list d-flex align-items-center border-bottom p-4">
+                    <div class="">
+                        <span class="avatar bg-primary brround avatar-md">CH</span>
+                    </div>
+                    <div class="wrapper w-100 ml-3">
+                        <p class="mb-0 d-flex">
+                            <b>New Websites is Created</b>
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <i class="mdi mdi-clock text-muted mr-1"></i>
+                                <small class="text-muted ml-auto">30 mins ago</small>
+                                <p class="mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="tab3">
+                <div class="">
+                    <div class="d-flex p-3 border-top">
+                        <label class="custom-control custom-checkbox mb-0">
+                            <input type="checkbox" class="custom-control-input" name="example-checkbox1"
+                                value="option1" checked="">
+                            <span class="custom-control-label">Do Even More..</span>
+                        </label>
+                        <span class="ml-auto">
+                            <i class="si si-pencil text-primary mr-2" data-toggle="tooltip" title=""
+                                data-placement="top" data-original-title="Edit"></i>
+                            <i class="si si-trash text-danger mr-2" data-toggle="tooltip" title=""
+                                data-placement="top" data-original-title="Delete"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
