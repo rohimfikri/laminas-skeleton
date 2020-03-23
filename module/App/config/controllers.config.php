@@ -9,5 +9,6 @@ return [
         Controller\AuthController::class => MainFactory::class,
         Controller\UserController::class => MainFactory::class,
         Controller\AdminController::class => MainFactory::class,
+        Controller\AjaxController::class => MainFactory::class,
     ],
 ];

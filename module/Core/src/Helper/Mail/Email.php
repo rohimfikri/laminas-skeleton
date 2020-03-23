@@ -131,8 +131,8 @@ class Email extends AbstractPlugin
         }
         // Debug::dump($_attach);die();
 
-        if($subject=="" || $subject==null || count($_to)<=0 || 
-        (($msg == "" || $msg == null) && ($htmlMarkup == "" || $htmlMarkup == null))){
+        if($subject==="" || $subject===null || count($_to)<=0 || 
+        (($msg === "" || $msg === null) && ($htmlMarkup === "" || $htmlMarkup === null))){
             $ret['msg'] = "invalid param";
         }else{
             try{
@@ -284,8 +284,8 @@ class Email extends AbstractPlugin
         }
         // Debug::dump($_attach);die();
 
-        if($subject=="" || $subject==null || count($_to)<=0 || 
-        (($msg == "" || $msg == null) && ($htmlMarkup == "" || $htmlMarkup == null))){
+        if($subject==="" || $subject===null || count($_to)<=0 || 
+        (($msg === "" || $msg === null) && ($htmlMarkup === "" || $htmlMarkup === null))){
             $ret['msg'] = "invalid param";
         }else{
             try{

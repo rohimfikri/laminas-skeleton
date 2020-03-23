@@ -31,6 +31,7 @@ return [
         'options' => [
             // 'attach_default_validators'=>false,
             // 'clear_storage'=>true
+            // "samesite" => "Strict",
         ],
         'config' => [
             // 'class' => SessionConfig::class,
@@ -49,6 +50,7 @@ return [
                 // 'gc_probability  '      => 1,
                 'cookie_secure' => false,
                 'cookie_httponly' => true,
+                "cookie_samesite" => "Strict",
                 'save_path' => _SESSION_SAVE_PATH_
             ]
         ],

@@ -24,7 +24,7 @@ define("_LOGIN_WAIT_",5*60);
 
 //Cache Constant
 define("_SESSION_CACHE_NAMESPACE_",_APP_ALIAS_ . "_SESSION");
-define("_SESSION_CACHE_TTL_", (60*60*24));
+define("_SESSION_CACHE_TTL_", (60*10));
 define("_SESSION_CACHE_DIR_",_CACHE_DIR_ . 'session');
 define("_VIEW_CACHE_NAMESPACE_",_APP_ALIAS_ . "_VIEW");
 define("_VIEW_CACHE_TTL_", (60*60*24));
@@ -39,10 +39,10 @@ define("_SESSION_TABLE_","_session");
 define("_SESSION_NAME_",_APP_ALIAS_."_session");
 define("_SESSION_SAVE_PATH_",APP_PATH.DS."data".DS."session");
 define("_SESSION_SAVEHANDLER_","DB");
-define("_SESSION_EXPIRE_",(60*60*24));
-define("_COOKIE_LIFETIME_",0);
+define("_SESSION_EXPIRE_",(60*10));
+define("_COOKIE_LIFETIME_",(60*10));
 define("_GCMAX_LIFETIME_",(60*60*24*30));
-define("_REMEMBER_ME_",(60*60*24*345));
+define("_REMEMBER_ME_",(60*60*24*30));
 
 //DB Constant
 //SYS

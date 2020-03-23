@@ -1,0 +1,216 @@
+<?php 
+    use Laminas\Router\Exception as LaminasException;
+    // !d($this->vars,$this->identity()); 
+    $this->notif()->setVars($this->vars);
+    $this->notif()->setIdentity($this->identity());
+    $this->notif()->reloadNotif();
+    $inbox = $this->notif()->getUnreadInbox();
+    $alert = $this->notif()->getUnreadAlert();
+    // !d($inbox,$alert);die(); 
+    $maxinbox = 0;
+    $maxalert = 0;
+?>
+<style>
+@media (max-width: 767px){
+    .header-top-menu .nav.notika-top-nav li .message-dd.chat-dd {
+        left: -130px;
+    }
+}
+</style>
+<div class="header-top-area">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <div class="logo-area">
+                    <a href="<?= $this->url("app");?>" id="logo-head">
+                        <?= _APP_NAME_; ?>
+                        <?php
+                            if($this->vars->menuTitle==true && $this->vars->menuTitle !=null){
+                                echo " | ".$this->vars->menuTitle;
+                            }; 
+                        ?>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
+                <div class="header-top-menu">
+                    <ul class="nav navbar-nav notika-top-nav">
+                        <li class="nav-item">
+                            <a
+                                href="#"
+                                data-toggle="dropdown"
+                                role="button"
+                                aria-expanded="false"
+                                class="nav-link dropdown-toggle">
+                                <span>
+                                    <i class="notika-icon notika-mail"></i></span>
+                                <div class="spinner4 spinner-4"></div>
+                                <div class="ntd-ctn">
+                                    <span id="inbox-count"><?php echo $this->notif()->getTotalUnreadInbox(); ?></span>
+                                </div>
+                            </a>
+                            <div role="menu" class="dropdown-menu message-dd chat-dd animated zoomIn">
+                                <div class="hd-mg-tt">
+                                    <h2>Inbox</h2>
+                                </div>
+                                <div id="inbox-notif" class="hd-message-info" style="max-height: 300px;overflow-y: auto;overflow-x: hidden;">
+                                <?php
+                                foreach ($inbox as $v) {
+                                    $link = $v['link'];
+                                    if($link=="" || $link=="#"){
+                                        if($v['route_link']!=""){
+                                            try{
+                                                $link = $this->url($v['route_link'],$v['route_param'],$v['route_query']);
+                                            }catch(LaminasException\RuntimeException $e){
+                                                $link = "#";
+                                            }
+                                        }
+                                    }
+                                ?>
+                                    <a href="<?php echo $link;?>">
+                                        <div class="hd-message-sn <?= $v['class']; ?>">
+                                            <div class="hd-message-img">
+                                                <?php
+                                                if ($v['img']!="") {
+                                                    ?>
+                                                <img src="<?= $v['img']; ?>" alt=""/>
+                                                <?php
+                                                }else if($v['icon']!=""){
+                                                ?>
+                                                <i class="<?= $v['icon']; ?>" style="font-size:2.5rem;padding:0.5rem;"></i>
+                                                <?php
+                                                }
+                                                ?>
+                                            </div>
+                                            <div class="hd-mg-ctn">
+                                                <h3><?php echo $v['title'];?></h3>
+                                                <p><?php echo $v['content'];?></p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                <?php
+                                    if($maxinbox<(int)$v['id'])$maxinbox = (int)$v['id'];
+                                }
+                                ?>
+                                </div>
+                                <div class="hd-mg-va">
+                                    <a href="#">View All</a>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a
+                                href="#"
+                                data-toggle="dropdown"
+                                role="button"
+                                aria-expanded="false"
+                                class="nav-link dropdown-toggle">
+                                <span>
+                                    <i class="notika-icon notika-alarm"></i>
+                                </span>
+                                <div class="spinner4 spinner-4"></div>
+                                <div class="ntd-ctn">
+                                    <span id="alert-count"><?php echo $this->notif()->getTotalUnreadAlert(); ?></span></div>
+                            </a>
+                            <div role="menu" class="dropdown-menu message-dd chat-dd animated zoomIn">
+                                <div class="hd-mg-tt">
+                                    <h2>Alert</h2>
+                                </div>
+                                <div id="alert-notif" class="hd-message-info" style="max-height: 300px;overflow-y: auto;overflow-x: hidden;">
+                                <?php
+                                foreach ($alert as $v) {
+                                    $link = $v['link'];
+                                    if($link=="" || $link=="#"){
+                                        if($v['route_link']!=""){
+                                            try{
+                                                $link = $this->url($v['route_link'],$v['route_param'],$v['route_query']);
+                                            }catch(LaminasException\RuntimeException $e){
+                                                $link = "#";
+                                            }
+                                        }
+                                    }
+                                ?>
+                                    <a href="<?php echo $link;?>">
+                                        <div class="hd-message-sn <?= $v['class']; ?>">
+                                            <div class="hd-message-img">
+                                                <?php
+                                                if ($v['img']!="") {
+                                                    ?>
+                                                <img src="<?= $v['img']; ?>" alt=""/>
+                                                <?php
+                                                }else if($v['icon']!=""){
+                                                ?>
+                                                <i class="<?= $v['icon']; ?>" style="font-size:2.5rem;padding:0.5rem;"></i>
+                                                <?php
+                                                }
+                                                ?>
+                                            </div>
+                                            <div class="hd-mg-ctn">
+                                                <h3><?php echo $v['title'];?></h3>
+                                                <p><?php echo $v['content'];?></p>
+                                            </div>
+                                        </div>
+                                    </a>
+                                <?php
+                                    if($maxalert<(int)$v['id'])$maxalert = (int)$v['id'];
+                                }
+                                ?>
+                                </div>
+                                <div class="hd-mg-va">
+                                    <a href="#">View All</a>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a
+                                href="<?= $this->url("app/auth",["action"=>"logout"]);?>"
+                                role="button"
+                                aria-expanded="false"
+                                class="nav-link">
+                                <strong><span>
+                                    <i class="fas fa-sign-out-alt"></i>
+                                </span></strong>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let inboxDOM;
+let alertDOM;
+let inboxCount = <?php echo $this->notif()->getTotalUnreadInbox(); ?>;
+let alertCount = <?php echo $this->notif()->getTotalUnreadAlert(); ?>;
+let maxunreadinbox = <?= $maxinbox; ?>;
+// let unreadinbox = {
+//     "unread_inbox1":{
+//         "title":"Message from X","link":"https:\/\/facebook.com",
+//         "icon":"fa fa-facebook","class":"nk-purple","img":null,"id":"1",
+//         "content":"Fusce eget dolor id justo luctus the commodo vel pharetra ni"
+//     },
+//     "unread_inbox2":{
+//         "title":"Message form Y","link":"https:\/\/google.com",
+//         "icon":"fa fa-google","class":"nk-teal","id":"2",
+//         "img":null,"content":"Fusce eget dolor id justo luctus the commodo vel pharetra ni"
+//     }
+// };
+let unreadinbox = {};
+let maxunreadalert = <?= $maxalert; ?>;
+// let unreadalert = {
+//     "unread_alert1":{
+//         "title":"Alert from X","link":"https:\/\/facebook.com",
+//         "route_link":null,"route_param":[],"route_query":[],
+//         "icon":"fa fa-facebook","class":"nk-purple","img":null,"id":"1",
+//         "content":"Fusce eget dolor id justo luctus the commodo vel pharetra ni"
+//     },
+//     "unread_alert2":{
+//         "title":"Alert form Y","link":"https:\/\/google.com","route_link":null,
+//         "route_param":[],"route_query":[],"icon":"fa fa-google","class":"nk-teal","id":"2",
+//         "img":null,"content":"Fusce eget dolor id justo luctus the commodo vel pharetra ni"
+//     }
+// };
+let unreadalert = {};
+</script>

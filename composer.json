@@ -38,7 +38,12 @@
         "predis/predis": "^1.1",
         "fzaninotto/faker": "^1.9",
         "chriskonnertz/string-calc": "^1.0",
-        "zendframework/zend-debug": "^2.6"
+        "zendframework/zend-debug": "^2.6",
+        "twbs/bootstrap": "4.1.3",
+        "laminas/laminas-mvc-plugin-flashmessenger": "^1.2",
+        "voku/anti-xss": "^4.1",
+        "laminas/laminas-dom": "^2.7",
+        "smalot/pdfparser": "^0.14.0"
     },
     "autoload": {
         "psr-4": {

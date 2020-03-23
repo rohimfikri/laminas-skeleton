@@ -1,5 +1,6 @@
 .vagrant/
 vendor/
+public/bower_components/
 config/development.config.php
 data/cache/*
 !data/cache/.gitkeep

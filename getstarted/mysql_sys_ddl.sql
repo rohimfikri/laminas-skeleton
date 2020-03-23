@@ -35,13 +35,27 @@ CREATE TABLE `lam_sys`.`_role` (
     UNIQUE KEY `role_uniq_1` (`name`) USING BTREE
 );
 
+DROP TABLE IF EXISTS `lam_sys`.`_ubis_level`;
+CREATE TABLE `lam_sys`.`_ubis_level` (
+    `code` varchar(10) NOT NULL,
+    `name` varchar(50) NOT NULL,
+    `status` smallint(1) NOT NULL DEFAULT '1',
+    `redirect_route` varchar(200) DEFAULT NULL,
+    `redirect_param` varchar(200) DEFAULT NULL,
+    `redirect_query` varchar(200) DEFAULT NULL,
+    `redirect_url` varchar(200) DEFAULT NULL,
+    PRIMARY KEY (`code`),
+    INDEX ubislevel_name (name),
+    UNIQUE KEY `ubislevel_uniq_1` (`name`) USING BTREE
+);
+
 DROP TABLE IF EXISTS `lam_sys`.`_ubis`;
 CREATE TABLE `lam_sys`.`_ubis` (
     `code` varchar(10) NOT NULL,
     `name` varchar(100) NOT NULL,
     `status` smallint(1) NOT NULL DEFAULT '1',
     `parent` varchar(50) DEFAULT NULL,
-    `level` varchar(50) DEFAULT NULL,
+    `level` varchar(50) DEFAULT 'NULL',
     `redirect_route` varchar(200) DEFAULT NULL,
     `redirect_param` varchar(200) DEFAULT NULL,
     `redirect_query` varchar(200) DEFAULT NULL,
@@ -50,13 +64,14 @@ CREATE TABLE `lam_sys`.`_ubis` (
     INDEX ubis_name (name),
     INDEX ubis_parent (parent),
     INDEX ubis_level (`level`),
-    UNIQUE KEY `ubis_uniq_1` (`name`,parent) USING BTREE
+    UNIQUE KEY `ubis_uniq_1` (`name`,parent) USING BTREE,
+    FOREIGN KEY (`level`) REFERENCES _ubis_level(code) ON DELETE SET NULL ON UPDATE SET NULL
 );
 
 DROP TABLE IF EXISTS `lam_sys`.`_menu`;
 CREATE TABLE `lam_sys`.`_menu` (
     `id` int(4) NOT NULL AUTO_INCREMENT,
-    `module` varchar(255) DEFAULT NULL,
+    `module` varchar(100) DEFAULT NULL,
     `layout` varchar(100) DEFAULT NULL,
     `title` varchar(30) DEFAULT NULL,
     `route` varchar(50) DEFAULT NULL,
@@ -225,4 +240,116 @@ CREATE TABLE lam_sys.`_user_access` (
   CONSTRAINT `_user_access_ibfk_2` FOREIGN KEY (`module`) REFERENCES lam_sys.`_module` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `_user_access_ibfk_3` FOREIGN KEY (`controller`) REFERENCES lam_sys.`_controller` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `_user_access_ibfk_4` FOREIGN KEY (`action`) REFERENCES lam_sys.`_action` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+DROP TABLE IF EXISTS `lam_sys`.`_inbox`;
+CREATE TABLE `lam_sys`.`_inbox` (
+    `id` int(4) NOT NULL AUTO_INCREMENT,
+    `module` varchar(255) DEFAULT NULL,
+    `layout` varchar(100) DEFAULT NULL,
+    `title` varchar(30) DEFAULT NULL,
+    `route` varchar(50) DEFAULT NULL,
+    `param` varchar(100) DEFAULT NULL,
+    `query` varchar(100) DEFAULT NULL,
+    `url` varchar(50) DEFAULT NULL,
+    `icon` varchar(50) DEFAULT NULL,
+    `type` varchar(50) DEFAULT NULL,
+    `class` varchar(50) DEFAULT NULL,
+    `status` int(1) DEFAULT '1',
+    `content` text DEFAULT NULL,
+    `created_date` datetime NOT NULL DEFAULT now(),
+    `created_by` int(6) DEFAULT '0',
+    PRIMARY KEY (`id`),
+    INDEX inbox_module (module),
+    INDEX inbox_layout (layout),
+    INDEX inbox_type (`type`),
+    INDEX inbox_status (status),
+    INDEX inbox_createdate (created_date),
+    INDEX inbox_createby (created_by),
+    UNIQUE KEY `inbox_uniq_1` (`module`,`layout`,`title`,`route`,`param`,`query`,`type`) USING BTREE,
+    UNIQUE KEY `inbox_uniq_2` (`module`,`layout`,`title`,`url`,`type`) USING BTREE,
+    UNIQUE KEY `inbox_uniq_3` (`module`,`layout`,`title`,`route`,`param`,`query`,`status`) USING BTREE,
+    UNIQUE KEY `inbox_uniq_4` (`module`,`layout`,`title`,`url`,`status`) USING BTREE,
+    UNIQUE KEY `inbox_uniq_5` (`module`,`layout`,`title`,`route`,`param`,`query`,`type`,`status`) USING BTREE,
+    UNIQUE KEY `inbox_uniq_6` (`module`,`layout`,`title`,`url`,`type`,`status`) USING BTREE
+);
+
+DROP TABLE IF EXISTS `lam_sys`.`_user_inbox`;
+CREATE TABLE `lam_sys`.`_user_inbox` (
+    `user` int(10),
+    `inbox` int(4),
+    `status` int(1) NOT NULL DEFAULT '1',
+    PRIMARY KEY (`user`,`inbox`),
+    INDEX uinbox_user (`user`),
+    INDEX uinbox_inbox (`inbox`),
+    FOREIGN KEY (`inbox`) REFERENCES _inbox(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`user`) REFERENCES _user(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+DROP TABLE IF EXISTS `lam_sys`.`_role_inbox`;
+CREATE TABLE `lam_sys`.`_role_inbox` (
+    `role` varchar(10),
+    `inbox` int(4),
+    `status` int(1) NOT NULL DEFAULT '1',
+    PRIMARY KEY (`role`,`inbox`),
+    INDEX rolinbox_role (`role`),
+    INDEX rolinbox_inbox (`inbox`),
+    FOREIGN KEY (`inbox`) REFERENCES _inbox(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`role`) REFERENCES _role(code) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+DROP TABLE IF EXISTS `lam_sys`.`_notif`;
+CREATE TABLE `lam_sys`.`_notif` (
+    `id` int(4) NOT NULL AUTO_INCREMENT,
+    `module` varchar(255) DEFAULT NULL,
+    `layout` varchar(100) DEFAULT NULL,
+    `title` varchar(30) DEFAULT NULL,
+    `route` varchar(50) DEFAULT NULL,
+    `param` varchar(100) DEFAULT NULL,
+    `query` varchar(100) DEFAULT NULL,
+    `url` varchar(50) DEFAULT NULL,
+    `icon` varchar(50) DEFAULT NULL,
+    `type` varchar(50) DEFAULT NULL,
+    `class` varchar(50) DEFAULT NULL,
+    `status` int(1) DEFAULT '1',
+    `content` text DEFAULT NULL,
+    `created_date` datetime NOT NULL DEFAULT now(),
+    `created_by` int(6) DEFAULT '0',
+    PRIMARY KEY (`id`),
+    INDEX notif_module (module),
+    INDEX notif_layout (layout),
+    INDEX notif_type (`type`),
+    INDEX notif_status (status),
+    INDEX notif_createdate (created_date),
+    INDEX notif_createby (created_by),
+    UNIQUE KEY `notif_uniq_1` (`module`,`layout`,`title`,`route`,`param`,`query`,`type`) USING BTREE,
+    UNIQUE KEY `notif_uniq_2` (`module`,`layout`,`title`,`url`,`type`) USING BTREE,
+    UNIQUE KEY `notif_uniq_3` (`module`,`layout`,`title`,`route`,`param`,`query`,`status`) USING BTREE,
+    UNIQUE KEY `notif_uniq_4` (`module`,`layout`,`title`,`url`,`status`) USING BTREE,
+    UNIQUE KEY `notif_uniq_5` (`module`,`layout`,`title`,`route`,`param`,`query`,`type`,`status`) USING BTREE,
+    UNIQUE KEY `notif_uniq_6` (`module`,`layout`,`title`,`url`,`type`,`status`) USING BTREE
+);
+
+DROP TABLE IF EXISTS `lam_sys`.`_user_notif`;
+CREATE TABLE `lam_sys`.`_user_notif` (
+    `user` int(10),
+    `notif` int(4),
+    `status` int(1) NOT NULL DEFAULT '1',
+    PRIMARY KEY (`user`,`notif`),
+    INDEX unotif_user (`user`),
+    INDEX unotif_notif (`notif`),
+    FOREIGN KEY (`notif`) REFERENCES _notif(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`user`) REFERENCES _user(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+DROP TABLE IF EXISTS `lam_sys`.`_role_notif`;
+CREATE TABLE `lam_sys`.`_role_notif` (
+    `role` varchar(10),
+    `notif` int(4),
+    `status` int(1) NOT NULL DEFAULT '1',
+    PRIMARY KEY (`role`,`notif`),
+    INDEX rolnotif_role (`role`),
+    INDEX rolnotif_notif (`notif`),
+    FOREIGN KEY (`notif`) REFERENCES _notif(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (`role`) REFERENCES _role(code) ON DELETE CASCADE ON UPDATE CASCADE
 );

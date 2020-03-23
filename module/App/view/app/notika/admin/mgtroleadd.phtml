@@ -1,0 +1,50 @@
+
+<?php 
+    use Laminas\Router\Exception as LaminasException;
+    // !d($this->vars,$this->identity()); 
+    // $this->notikaGenerator()->renderTableFloatingForm($this->tblSchema);
+?>
+<script>
+"use strict";
+</script>
+<?php
+$this->headScript()->captureStart();
+?>
+"use strict";
+(function ($) {
+$(document).ready(function(){
+    
+});
+})(jQuery); 
+<?php
+$this->headScript()->captureEnd();
+?>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="data-table-list">
+                <form method="POST" id="addRoleForm">
+                <div class="basic-tb-hd">
+                    <div class="pull-right">
+                        <a class="btn text-white nk-deep-orange" href="<?= $this->url('admin/manage-role'); ?>"><i class="fas fa-arrow-circle-left"></i> CANCEL</a>
+                        <button type="submit" class="btn bg-default"><i class="fas fa-save"></i> SAVE DATA</a>
+                    </div>
+                    <h2>Add Role</h2>
+                    <p>System Administration</p>
+                </div>
+                <div class="form-container">
+                <?php
+                    echo $this->notikaGenerator()->renderTableForm($this->tblSchema,2);
+                ?>
+                </div>
+                <div class="basic-tb-hd m-t-10 p-y-10">
+                    <div class="pull-right">
+                        <a class="btn text-white nk-deep-orange" href="<?= $this->url('admin/manage-role'); ?>"><i class="fas fa-arrow-circle-left"></i> CANCEL</a>
+                        <button type="submit" class="btn bg-default"><i class="fas fa-save"></i> SAVE DATA</a>
+                    </div>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

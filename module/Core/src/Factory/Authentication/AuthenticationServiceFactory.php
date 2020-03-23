@@ -15,7 +15,7 @@ use Zend\Debug\Debug;
 class AuthenticationServiceFactory implements FactoryInterface
 {
     /**
-     * This method creates the Zend\Authentication\AuthenticationService service
+     * This method creates the Laminas\Authentication\AuthenticationService service
      * and returns its instance.
      */
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null)

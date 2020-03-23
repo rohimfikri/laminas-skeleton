@@ -29,6 +29,7 @@ class AuthController extends AbstractActionController{
 
     private function defaultRedirect(){
         $user = $this->identity();
+        // !d($user);die();
         if (isset($user['redirect_url']) && !is_null($user['redirect_url']) && $user['redirect_url']!=""){
             return $this->redirect()->toUrl($user['redirect_url']);
         }else if (isset($user['redirect_route']) && !is_null($user['redirect_route']) && $user['redirect_route']!=""){
@@ -43,23 +44,57 @@ class AuthController extends AbstractActionController{
                 return $this->redirect()->toRoute($user['redirect_route'],$param,$query);
             }
         }else {
-            if (isset($user['main_role']) && !is_null($user['main_role'])){
-                $mainrole = $user['main_role'];
-                if (isset($user['roles'][$mainrole]) && !is_null($user['roles'][$mainrole])){
-                    $role = $user['roles'][$mainrole];
-                    if (isset($role['redirect_url']) && !is_null($role['redirect_url']) && $role['redirect_url']!=""){
-                        return $this->redirect()->toUrl($role['redirect_url']);
-                    }else if (isset($role['redirect_route']) && !is_null($role['redirect_route']) && $role['redirect_route']!=""){
-                        $router = $this->container->get('Router');
-                        if ($router->hasRoute($role['redirect_route'])) {
-                            $param = (isset($role['redirect_param']) && !is_null($role['redirect_param']) && $role['redirect_param']!="")?$role['redirect_route']:"{}";
-                            $query = (isset($role['redirect_query']) && !is_null($role['redirect_query']) && $role['redirect_query']!="")?$role['redirect_query']:"{}";
-                            $param = json_decode($param,true);
-                            $query = json_decode($query,true);
-                            $param = (is_array($param))?$param:[];
-                            $query = (is_array($query))?$query:[];
-                            return $this->redirect()->toRoute($role['redirect_route'],$param,$query);
-                        }
+            if (isset($user['mainrole_data']) && !isset($user['mainrole_data']['code'])){
+                $role = $user['mainrole_data'];
+                if (isset($role['redirect_url']) && !is_null($role['redirect_url']) && $role['redirect_url']!=""){
+                    return $this->redirect()->toUrl($role['redirect_url']);
+                }else if (isset($role['redirect_route']) && !is_null($role['redirect_route']) && $role['redirect_route']!=""){
+                    $router = $this->container->get('Router');
+                    if ($router->hasRoute($role['redirect_route'])) {
+                        $param = (isset($role['redirect_param']) && !is_null($role['redirect_param']) && $role['redirect_param']!="")?$role['redirect_route']:"{}";
+                        $query = (isset($role['redirect_query']) && !is_null($role['redirect_query']) && $role['redirect_query']!="")?$role['redirect_query']:"{}";
+                        $param = json_decode($param,true);
+                        $query = json_decode($query,true);
+                        $param = (is_array($param))?$param:[];
+                        $query = (is_array($query))?$query:[];
+                        return $this->redirect()->toRoute($role['redirect_route'],$param,$query);
+                    }
+                }
+            }
+            // else if (isset($user['main_role']) && !is_null($user['main_role'])){
+            //     $mainrole = $user['main_role'];
+            //     if (isset($user['roles'][$mainrole]) && !is_null($user['roles'][$mainrole])){
+            //         $role = $user['roles'][$mainrole];
+            //         if (isset($role['redirect_url']) && !is_null($role['redirect_url']) && $role['redirect_url']!=""){
+            //             return $this->redirect()->toUrl($role['redirect_url']);
+            //         }else if (isset($role['redirect_route']) && !is_null($role['redirect_route']) && $role['redirect_route']!=""){
+            //             $router = $this->container->get('Router');
+            //             if ($router->hasRoute($role['redirect_route'])) {
+            //                 $param = (isset($role['redirect_param']) && !is_null($role['redirect_param']) && $role['redirect_param']!="")?$role['redirect_route']:"{}";
+            //                 $query = (isset($role['redirect_query']) && !is_null($role['redirect_query']) && $role['redirect_query']!="")?$role['redirect_query']:"{}";
+            //                 $param = json_decode($param,true);
+            //                 $query = json_decode($query,true);
+            //                 $param = (is_array($param))?$param:[];
+            //                 $query = (is_array($query))?$query:[];
+            //                 return $this->redirect()->toRoute($role['redirect_route'],$param,$query);
+            //             }
+            //         }
+            //     }
+            // }
+            else if (isset($user['mainubis_data']) && !isset($user['mainubis_data']['code'])){
+                $ubis = $user['mainubis_data'];
+                if (isset($ubis['redirect_url']) && !is_null($ubis['redirect_url']) && $ubis['redirect_url']!=""){
+                    return $this->redirect()->toUrl($ubis['redirect_url']);
+                }else if (isset($ubis['redirect_route']) && !is_null($ubis['redirect_route']) && $ubis['redirect_route']!=""){
+                    $router = $this->container->get('Router');
+                    if ($router->hasRoute($ubis['redirect_route'])) {
+                        $param = (isset($ubis['redirect_param']) && !is_null($ubis['redirect_param']) && $ubis['redirect_param']!="")?$ubis['redirect_route']:"{}";
+                        $query = (isset($ubis['redirect_query']) && !is_null($ubis['redirect_query']) && $ubis['redirect_query']!="")?$ubis['redirect_query']:"{}";
+                        $param = json_decode($param,true);
+                        $query = json_decode($query,true);
+                        $param = (is_array($param))?$param:[];
+                        $query = (is_array($query))?$query:[];
+                        return $this->redirect()->toRoute($ubis['redirect_route'],$param,$query);
                     }
                 }
             }
@@ -109,7 +144,7 @@ class AuthController extends AbstractActionController{
             }
         }
         $trylogin = 1;
-        if($this->getRequest()->isPost() && $wait==0) {
+        if($this->getRequest()->isPost() && $wait===0) {
             // !d($this->config);die();
             // $sess_manager = $this->container->get(\Laminas\Session\SessionManager::class);   
             // !d($sess_manager);die();
@@ -188,10 +223,26 @@ class AuthController extends AbstractActionController{
         $module = (string)$this->params()->fromQuery('module', '');
         $auth = $this->Auth();
         $auth->logout();
-        if($module==""){
+        if($module===""){
             return $this->redirect()->toRoute('app/auth', ['action'=>'login']);
         }else{
             return $this->redirect()->toRoute('app/auth', ['action'=>'login'], ['query' => ['module'=>$module]]);
         }
+    }
+
+    public function noauthAction(){
+        // Debug::dump($this->getResponse());die();
+        // Debug::dump($this->getRequest());die();
+        // Retrieve the redirect URL (if passed). We will redirect the user to this
+        // URL after successfull login.
+        $backUrl = (string)$this->params()->fromQuery('backUrl', '');
+        if (strlen($backUrl)>2048 || $backUrl=="/") {
+            $backUrl = $this->url()->fromRoute('app');
+            // throw new \Exception("Too long backUrl argument passed");
+        }
+        $this->getResponse()->setStatusCode(403);
+        return [
+            'backUrl' => $backUrl
+        ];
     }
 }

@@ -1,5 +1,6 @@
 <?php
-$mainubis =($this->identity()['main_ubis']!="" && isset($this->identity()['ubis'][$this->identity()['main_ubis']]))?$this->identity()['ubis'][$this->identity()['main_ubis']]['name']:"";
+$mainrole =$this->identity()['mainrole_data']['name']??"";
+$mainubis =$this->identity()['mainubis_data']['name']??"";
 $mainubis = wordwrap($mainubis, 20, "<br>", false);
 ?>
 <div class="sidebar sidebar-right sidebar-animate">
@@ -43,7 +44,7 @@ $mainubis = wordwrap($mainubis, 20, "<br>", false);
                                 <div>Inbox</div>
                             </div>
                             <div class="col-6 text-center border">
-                                <a class="" href="<?= $this->url('front/auth',['action'=>'logout']); ?>"><i class="dropdown-icon fa fa-power-off fs-30 m-0 leading-tight"></i></a>
+                                <a class="" href="<?= $this->url('app/auth',['action'=>'logout']); ?>"><i class="dropdown-icon fa fa-power-off fs-30 m-0 leading-tight"></i></a>
                                 <div>Log Out</div>
                             </div>
                         </div>

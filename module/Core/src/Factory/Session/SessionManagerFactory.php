@@ -77,11 +77,11 @@ class SessionManagerFactory implements FactoryInterface
             // class should be fetched from service manager
             // since it will require constructor arguments
             $sessionSaveHandler = $container->get($session['save_handler']);
-        }else if(_SESSION_SAVEHANDLER_=="DB"){
+        }else if(_SESSION_SAVEHANDLER_==="DB"){
             $dbadapter = $container->get('db-sys');
             $tableGateway = new TableGateway(_SESSION_TABLE_, $dbadapter);
             $sessionSaveHandler  = new MainSaveHandler($container,$tableGateway, new MainSaveHandlerOptions());
-        }else if(_SESSION_SAVEHANDLER_=="FILE"){
+        }else if(_SESSION_SAVEHANDLER_==="FILE"){
             $config = $container->get('Config');
             // Debug::dump($config['cache']);die();
             $adapter = $config['caches']['session-file']['adapter'];

@@ -17,6 +17,7 @@ use Laminas\Http\Request as HttpRequest;
 use Laminas\Console\Request as ConsoleRequest;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Zend\Debug\Debug;
+use voku\helper\AntiXSS;
 
 class Module
 {
@@ -31,11 +32,29 @@ class Module
           AbstractActionController::class,
           MvcEvent::EVENT_DISPATCH,
           [$this, 'shareDispatchAAC'], 100);
+
+
+        $sharedEventManager->attach(
+            '*',
+            MvcEvent::EVENT_RENDER_ERROR,
+            [$this, 'onRenderError'], 100);
           
         // die("qqq");
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
         $this->bootstrapSession($e);
+    }
+
+
+    public function onRenderError(MvcEvent $event) {
+        // Debug::dump($event->getResult());die();
+
+        $viewModel = $event->getViewModel();
+        // Debug::dump(get_class($viewModel));die();
+        if (get_class($viewModel) === "Laminas\View\Model\ViewModel") {
+            $viewModel->setTemplate('layout/blank');
+        }
+        // die('qqq');
     }
     
     public function bootstrapSession($e)
@@ -114,6 +133,18 @@ class Module
         // die();
         // !d($session->sessionExists(),$session->isValid(),$session->getId());
     }
+
+    // public function registerRenderStrategy(MvcEvent $e) {
+    //     $app = $e->getTarget();
+    //     $locator = $app->getServiceManager();
+    //     $view = $locator->get('Zend\View\View');
+    //     $jsonStrategy = $locator->get('ViewJsonStrategy');
+    //     $feedStrategy = $locator->get('ViewFeedStrategy');
+
+    //     // Attach strategy, which is a listener aggregate, at high priority
+    //     $jsonStrategy->attach($view->getEventManager(), 100);
+    //     $feedStrategy->attach($view->getEventManager(), 100);
+    // }
     
     public function loadCacheView(MvcEvent $e) {
         $app = $e->getApplication();
@@ -158,28 +189,123 @@ class Module
         $config = $servicesManager->get('Config');
         // Debug::dump($config);die();
         $request = $e->getRequest();
-        if ($request instanceof HttpRequest) {
+        $pPath = $request->getUri()->getPath();
+        $foundXSS = false;
+        $antiXss = new AntiXSS();
+        $harmless_string = $antiXss->xss_clean($pPath);
+        $foundXSS = $antiXss->isXssFound();
+
+        $pQuery = $request->getQuery()->toArray();
+        if (!$foundXSS) {
+            foreach ($pQuery as $key => $value) {
+                $antiXss = new AntiXSS();
+                $harmless_string = $antiXss->xss_clean($key);
+                $foundXSS = $antiXss->isXssFound();
+                if ($foundXSS) {
+                    break;
+                }
+                $antiXss = new AntiXSS();
+                $harmless_string = $antiXss->xss_clean($value);
+                $foundXSS = $antiXss->isXssFound();
+                if ($foundXSS) {
+                    break;
+                }
+            }
+        }
+        
+        $pPost = $request->getPost()->toArray();
+        if (!$foundXSS) {
+            foreach ($pPost as $key => $value) {
+                $antiXss = new AntiXSS();
+                $harmless_string = $antiXss->xss_clean($key);
+                $foundXSS = $antiXss->isXssFound();
+                if ($foundXSS) {
+                    break;
+                }
+                $antiXss = new AntiXSS();
+                $harmless_string = $antiXss->xss_clean($value);
+                $foundXSS = $antiXss->isXssFound();
+                if ($foundXSS) {
+                    break;
+                }
+            }
+        }
+
+        $pHeaders = $request->getHeaders()->toArray();
+        $pServer = $request->getServer()->toArray();
+        $pEnv = $request->getEnv()->toArray();
+        // !d($request);
+        // !d($pPath,$pQuery,$pPost,$pHeaders,$pServer,$pEnv,$foundXSS);die();
+        if($foundXSS){
+            $auth = $servicesManager->get(AuthenticationService::class);
+            $user = [];
+            if($auth->hasIdentity()){ 
+                $session = $servicesManager->get(\Laminas\Session\SessionManager::class);
+                $tmp = $auth->getIdentity();
+                $sess_id = null;
+                if($session->sessionExists()){
+                    $sess_id = $session->getId();
+                }
+                $user = [
+                    'id'=>$tmp['id'],
+                    'username'=>$tmp['username'],
+                    'full_name'=>$tmp['full_name'],
+                    'session_id'=>$sess_id
+                ];
+            }
+            // $auth->clearIdentity();
+            $response = $e->getResponse();
+            $response->setStatusCode(HTTP_UNAUTHORIZED);
+            $response->setContent("UNAUTHORIZED");
+            // die(APP_PATH);
+            $data = [
+                'path'=>$pPath,
+                'query'=>$pQuery,
+                'post'=>$pPost,
+                'header'=>$pHeaders,
+                'server'=>$pServer,
+                'env'=>$pEnv,
+                'user'=>$user,
+            ];
+            // $format = '%timestamp%||%priorityName%||%priority%||%message%' . PHP_EOL;
+            $format = '%timestamp%|%priorityName%|%message%';
+            $formatter = new \Laminas\Log\Formatter\Simple($format);
+            $writer = new \Laminas\Log\Writer\Stream(APP_PATH.'/log/'.date('Ymd').'-xss.log');
+            $writer->setFormatter($formatter);
+            $logger = new \Laminas\Log\Logger();
+            $logger->addWriter($writer);
+
+            $logger->alert(json_encode($data));
+            $logger = null;
+    
+            return $response;
+        }else if ($request instanceof HttpRequest) {
             $controller = $e->getTarget();
             $query = $request->getQuery('module', '');
             $uri = $request->getUri();
             $matchedRoute = $e->getRouteMatch();
+            $viewModel = $e->getViewModel();
             // Debug::dump($request);
             // Debug::dump($matchedRoute);die();
+            // Debug::dump($viewModel);die();
             $controllerName = $matchedRoute->getParam('controller', null);
             $actionName = $matchedRoute->getParam('action', null);
             // Debug::dump($controllerName);
             // Debug::dump($actionName);die();
             // Convert dash-style action name to camel-case.
-            $actionName = str_replace('-', '', lcfirst(ucwords($actionName, '-')));
-            if ($query == '') {
+            if ($actionName!=null) {
+                  $actionName = str_replace('-', '', lcfirst(ucwords($actionName, '-')));
+            }
+            if ($query === '') {
                 $module = substr($controllerName, 0, strpos($controllerName, '\\'));
             } else {
                 $module = $query;
             }
-            $isAuthPage = $controllerName == "App\Controller\AuthController";
-            $isIndexPage = $controllerName == "App\Controller\IndexController";
+            $isAuthPage = $controllerName === "App\Controller\AuthController";
+            $isIndexPage = $controllerName === "App\Controller\IndexController";
 
             $auth = $servicesManager->get(AuthenticationService::class);
+            // !d($isIndexPage,$isAuthPage,$auth->hasIdentity());
             if(!$isIndexPage && !$isAuthPage && !$auth->hasIdentity()){
                 if($request->isXmlHttpRequest()){
                     $response = $e->getResponse();
@@ -197,8 +323,71 @@ class Module
                     return $controller->redirect()->toRoute('app/auth', ['action' => 'login'],
                         ['query' => ['redirectUrl' => $redirectUrl, 'module' => $module]]);
                 }
-            }else{
+            }else if($isIndexPage || $isAuthPage){
                 $this->loadCacheView($e);
+            }else{
+                $authAdapter = $auth->getAdapter();
+                $identity = $auth->getIdentity();
+                // !d($auth);
+                // !d($identity,$controllerName,$actionName);die();
+                // !d($authAdapter->authAccess($auth,$controllerName,$actionName));die();
+                if (!$authAdapter->authAccess($auth,$matchedRoute,$controllerName,$actionName,$viewModel)) {
+                  // Debug::dump($module);die('a');
+                //   !d($request->getHeader('referer')->uri()->getPath());die();
+                  $islogin =(($auth->getIdentity()!=null) || ($auth->hasIdentity()));
+                    // !d($islogin,$request->getHeader('referer'));die();
+                  if ($islogin && $request->getHeader('referer')!==false && $request->getHeader('referer')->uri()->getPath()!==''
+                  && $request->getHeader('referer')->uri()->getPath()!==null) {
+                    // !d($request->getHeader('referer'));die('aaa');
+                    return $controller->redirect()->toRoute('app/auth', ['action' => 'noauth'],
+                      ['query' => ['backUrl' => $request->getHeader('referer')->uri()->getPath(), 'module' => $module]]);
+                  } else if ($islogin) {
+                    // Debug::dump($auth->getIdentity());die('qqq');
+                    $identity = $auth->getIdentity();
+                    // !d($identity);die();
+                    $redirectUrl = $identity['redirect_url'] ?? "/";
+                    if ($identity['redirect_url'] === null || $identity['redirect_url'] === '/'
+                    || $identity['redirect_url'] === ''){
+                        $redirectRoute = $identity['redirect_route'] ?? "";
+                        $redirect = $controller->url()->fromRoute("app");
+                        // Debug::dump($redirectRoute);die('qqq');
+                        if ($identity['redirect_url'] !== null || $identity['redirect_url'] !== ''){
+                            $redirectParam = $identity['redirect_param'] ?? "{}";
+                            $redirectQuery = $identity['redirect_query'] ?? "{}";
+                            try {
+                                $redirect = $controller->url()->fromRoute($redirectRoute, $redirectParam, ['query' => $redirectQuery]);
+                            }catch(Exception $e){
+                                $redirect = $controller->url()->fromRoute("app");
+                            }catch(\Exception $e){
+                                $redirect = $controller->url()->fromRoute("app");
+                            }
+                            // Debug::dump($redirect);die('qqq');
+
+                            // return $controller->redirect()->toRoute($redirectRoute, $redirectParam,
+                            //   ['query' => ['backUrl' => $redirect, 'module' => $module]]);
+                        }
+                    }
+                    // Debug::dump($redirect);die('qqq');
+                    return $controller->redirect()->toRoute('app/auth', ['action' => 'noauth'],
+                      ['query' => ['backUrl' => $redirect, 'module' => $module]]);
+                  } else {
+                    // Remember the URL of the page the user tried to access. We will
+                    // redirect the user to that URL after successful login.
+                    $uri = $event->getApplication()->getRequest()->getUri();
+                    // Make the URL relative (remove scheme, user info, host name and port)
+                    // to avoid redirecting to other domain by a malicious user.
+                    $uri->setScheme(null)->setHost(null)->setPort(null)->setUserInfo(null);
+                    $redirectUrl = $uri->toString();
+          
+                    // Redirect the user to the "Login" page.
+                    return $controller->redirect()->toRoute('front/auth', ['action' => 'login'],
+                      ['query' => ['redirectUrl' => $redirectUrl, 'module' => $module]]);
+                  }
+                } else {
+                    // die('aaa');
+                    // Debug::dump($viewModel);die('xxx');
+                    $this->loadCacheView($e);
+                }
             }
         }
     }
@@ -222,35 +411,50 @@ class Module
     }
 
     public function onRender(MvcEvent $event) {
+        // $this->registerRenderStrategy($event);
         // !d($event->getRequest() instanceof HttpRequest);die();
-        if ($event->getRequest() instanceof HttpRequest) {
+        $request = $event->getRequest();
+        if ($request instanceof HttpRequest) {
             $routeMatch = $event->getRouteMatch();
             // !d($event->getRequest());
             $viewModel = $event->getViewModel();
+            $controllerName = null;
             if ($routeMatch != null) {
+                $controllerName = $routeMatch->getParam('controller', null);
+            }
+            // !d($routeMatch,$controllerName);die();
+            if ($routeMatch != null && $controllerName!=null) {
                 // !d($viewModel);
-                if (get_class($viewModel) == "Laminas\View\Model\ViewModel") {
-                    $controllerName = $routeMatch->getParam('controller', null);
+                if (get_class($viewModel) === "Laminas\View\Model\ViewModel") {
+                    // !d($controllerName);die();
+                    // !d($routeMatch->getMatchedRouteName(),$routeMatch->getParams(),$request->getQuery());
+                    $viewModel->setVariable('route_name', $routeMatch->getMatchedRouteName());
+                    $viewModel->setVariable('route_param', $routeMatch->getParams());
+                    $viewModel->setVariable('route_query', $request->getQuery()->toArray());
                     $moduleName = substr($controllerName, 0, strpos($controllerName, '\\'));
                     $this->setLayoutTitle($event);
                     $actionName = $routeMatch->getParam('action', null);
-                    // !d($moduleName,$controllerName,$actionName);
+                    // !d($moduleName,$controllerName,$actionName);die();
                     // $menuTitle = $routeMatch->getParam('title', null);
                     // !d($menuTitle);
                     $viewModel->setVariable('module', $moduleName);
                     $viewModel->setVariable('controller', $controllerName);
                     $viewModel->setVariable('action', $actionName);
                     // $viewModel->setVariable('menuTitle', $menuTitle);
+                    $application = $event->getApplication();
+                    // $servicesManager = $application->getServiceManager();
+                    // $auth = $servicesManager->get(AuthenticationService::class);
+                    // $identity = $auth->getIdentity();
                     $layout = $viewModel->getTemplate();
                     $layout = explode("/", $layout);
-                    // !d($layout);
+                    // !d($viewModel,$layout);die();
 
                     if (count($layout) > 0) {
                         $module = strtolower($moduleName);
                         $layout = $layout[count($layout) - 1];
-                        // !d($module,$layout,$viewModel->getChildren());
+                        // !d($module,$layout,$viewModel->getChildren());die();
                         foreach($viewModel->getChildren() as $key => $value) {
-                            if ($value->captureTo() == "content") {
+                            if ($value->captureTo() === "content") {
                                 $template_ori = $value->getTemplate();
                                 $template_tmp = str_replace($module.'/', $module.'/'.$layout.'/', $template_ori);
                                 $filepath = APP_PATH.'/module/'.$moduleName.'/view/'.$template_tmp.'.phtml';
@@ -258,7 +462,7 @@ class Module
                                 // !d($layout);
                                 $layoutpath = APP_PATH.'/view/layout/'.$layout.'.phtml';
                                 // !d($template_ori,$template_tmp,$filepath);
-                                // !d($filepath,file_exists($filepath));
+                                // !d(_DEFAULT_THEME_,$filepath,file_exists($filepath));die();
                                 if(file_exists($layoutpath) && file_exists($filepath)){
                                     $value->setTemplate($template_tmp);
                                     $viewModel->setTemplate($layout);
@@ -276,14 +480,18 @@ class Module
                                 break;
                             }
                         }
+                        // !d($viewModel,$layout);die();
                         $viewModel->setVariable('layout', $layout);
                     }
                 }
             }
-
+            // die('qqq');
             $response = $event->getResponse();
             $response->getHeaders()->addHeaderLine('X-Frame-Options', 'sameorigin');
+            $response->getHeaders()->addHeaderLine('X-XSS-Protection', '1');
+            $response->getHeaders()->addHeaderLine('X-Content-Type-Options', 'nosniff');
             // Debug::dump($response);die();
+            // !d($request->getHeaders(),$response->getHeaders());die();
             if ($response->getStatusCode() != 200) {
                 // $viewModel = $event->getViewModel();
                 $viewModel->setTemplate('layout/blank-layout');
@@ -361,16 +569,18 @@ class Module
         // !d($event->getRequest() instanceof HttpRequest);die();
         if ($event->getRequest() instanceof HttpRequest) {
             $routeMatch = $event->getRouteMatch();
+            $app = $event->getTarget();
+            $response = $app->getResponse();
             // !d($routeMatch);die();
+            // !d($response->getHeaders());die();
             if ($routeMatch != null) {
-                $app = $event->getTarget();
                 // Debug::dump($app->getResponse());
                 $serviceManager = $app->getServiceManager();
                 // Debug::dump($serviceManager);die();
                 $config = $serviceManager->get('config');
                 // !d($config);die();
                 $this->disconnectDB($config['db']['adapters'], $serviceManager);
-                $db = $serviceManager->build(\Zend\Db\Adapter\Adapter::class);
+                $db = $serviceManager->build(\Laminas\Db\Adapter\Adapter::class);
                 // Debug::dump($db);die('www');
                 if ($db->getDriver()->getConnection()->isConnected()) {
                     $db->getDriver()->getConnection()->disconnect();
@@ -378,8 +588,7 @@ class Module
 
                 $render = $event->getRequest()->getQuery('render', '');
 
-                if ($render == "text") {
-                    $response = $app->getResponse();
+                if ($render === "text") {
                     // Debug::dump($response->getHeaders());die();
                     $route = $routeMatch->getMatchedRouteName();
                     $route = str_replace('/', '-', $route);

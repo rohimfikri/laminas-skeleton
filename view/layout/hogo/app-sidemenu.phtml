@@ -1,13 +1,6 @@
 <?php
-$mainrole =($this->identity()['main_role']!="")?$this->identity()['roles'][$this->identity()['main_role']]['name']:"";
-$mainubis =($this->identity()['main_ubis']!="")?$this->identity()['ubis'][$this->identity()['main_ubis']]['name']:"";
-$mainubiscode =($this->identity()['main_ubis']!="" && isset($this->identity()['ubis'][$this->identity()['main_ubis']]))?$this->identity()['ubis'][$this->identity()['main_ubis']]['code']:"";
-$mainubislevel =($this->identity()['main_ubis']!="" && isset($this->identity()['ubis'][$this->identity()['main_ubis']]))?$this->identity()['ubis'][$this->identity()['main_ubis']]['level']:"";
-$mainubis = wordwrap($mainubis, 20, "<br>", false);
-$ubis = $this->identity()['ubiscode'];
-$ubisparent = $this->identity()['ubisparent'];
-// var_dump($ubisparent);//die();
-// var_dump($ubisparent);//die();
+$mainrole =$this->identity()['mainrole_data']['name']??"";
+$mainubis =$this->identity()['mainubis_data']['name']??"";
 ?>
 <div class="app-sidebar__overlay" data-toggle="sidebar"></div>
 <aside class="app-sidebar">
@@ -29,7 +22,7 @@ $ubisparent = $this->identity()['ubisparent'];
             <!-- Tabs -->
             <ul class="nav panel-tabs">
                 <li>
-                    <a href="<?= $this->url('front/auth',['action'=>'logout']); ?>" title="logout">
+                    <a href="<?= $this->url('app/auth',['action'=>'logout']); ?>" title="logout">
                         <i class="fa fa-power-off fs-17"></i>
                     </a>
                 </li>
@@ -42,13 +35,14 @@ $ubisparent = $this->identity()['ubisparent'];
                 <div class="row row-demo-list">
                     <div id="parentVerticalTab" class="col-md-12">
                         <ul class="resp-tabs-list hor_1">
-                            <li class="<?= ($this->active_menu=="dashboard")?"resp-tab-active active":""; ?>"><i class="side-menu__icon typcn typcn-device-desktop"></i></li>
+                            <!-- <li class="<?= ($this->active_menu=="dashboard")?"resp-tab-active active":""; ?>"><i class="side-menu__icon typcn typcn-device-desktop"></i></li>
                             <li class="<?= ($this->active_menu=="strategyformula")?"resp-tab-active active":""; ?>"><i class="side-menu__icon typcn typcn-edit"></i></li>
                             <li class="<?= ($this->active_menu=="strategyimplemen")?"resp-tab-active active":""; ?>"><i class="side-menu__icon typcn typcn-export-outline"></i></li>
-                            <li class="<?= ($this->active_menu=="admin")?"resp-tab-active active":""; ?>"><i class="side-menu__icon typcn typcn-cog-outline"></i></li>
+                            <li class="<?= ($this->active_menu=="admin")?"resp-tab-active active":""; ?>"><i class="side-menu__icon typcn typcn-cog-outline"></i></li> -->
                         </ul>
                         <div class="resp-tabs-container hor_1">
-                            <div class="<?= ($this->active_menu=="dashboard")?"resp-tab-content-active active":""; ?>">
+                        <?php /*
+                            <!-- <div class="<?= ($this->active_menu=="dashboard")?"resp-tab-content-active active":""; ?>">
                                 <div class="row">
                                     <div class="col-md-12">
                                         <h4 class="font-weight-bold">DASHBOARD</h4>
@@ -220,7 +214,8 @@ $ubisparent = $this->identity()['ubisparent'];
                                         ?>
                                     </div>
                                 </div>
-                            </div>
+                            </div> -->
+                        */ ?>
                         </div>
                     </div>
                 </div><!-- col-4 -->

@@ -45,7 +45,7 @@ class MobileMenu extends AbstractHelper {
             // !d($menus);die();
             if(count($menus)>0){
                 foreach($menus as $v){
-                    if($v['parent']=="0" && !in_array($v['id'],$this->topMenuKey)){
+                    if($v['parent']==="0" && !in_array($v['id'],$this->topMenuKey)){
                         if(($v['url']!=null && $v['url']!="") || ($v['route']!=null && $v['route']!="")){
                             $this->topMenuKey[] = $v['id'];
                             $par = json_encode($v['param'],true);
@@ -59,7 +59,7 @@ class MobileMenu extends AbstractHelper {
                                 "icon"=>$v['icon']
                             ];
                         }
-                    }else if(($v['parent']==null || $v['parent']=="") && $v['url']=="#"
+                    }else if(($v['parent']===null || $v['parent']==="") && $v['url']==="#"
                     && !in_array($v['id'],$this->topMenuKey) && !in_array($v['id'],$this->menu1Key)){
                         $this->menu1Key[] = $v['id'];
                         $this->menu1["topmenu".$v['id']] = [

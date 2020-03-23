@@ -1,0 +1,185 @@
+<script>
+"use strict";
+let tableUBISlevel;
+let deleteModal;
+let delActive = {};
+let showDeleteModal,dismissDeleteModal,deleteUBISlevel,deleteAjax,deleteCSRF;
+</script>
+<?php
+$this->headScript()->captureStart();
+?>
+"use strict";
+(function ($) {
+deleteAjax = null;
+deleteCSRF = '<?= $this->csrf; ?>';
+
+showDeleteModal = function(ubislevelcode,ubislevelname){
+    deleteModal.find("#delModal_code").html(ubislevelcode);
+    deleteModal.find("#delModal_ubis_levelname").html(ubislevelname);
+    delActive = {
+        code : ubislevelcode,
+        ubislevelname : ubislevelname
+    };
+    deleteModal.modal("show");
+}
+
+dismissDeleteModal = function(){
+    deleteModal.find("#delModal_code").html("");
+    deleteModal.find("#delModal_ubis_levelname").html("");
+    delActive = {};
+    deleteModal.modal("hide");
+}
+
+deleteUBISlevel = function(){
+    //console.log(delActive);
+    //return false;
+    if(deleteAjax!=null)deleteAjax.abort();
+    showLoader();
+    deleteAjax = $.ajax({
+        url : "<?= $this->url('ajax/data-generator/deleteSQL'); ?>",
+        async : true,
+        cache : false,
+        method : "POST",
+        processData : true,
+        //contentType : 'json',
+        dataType : 'json',
+        crossDomain : false,
+        timeout : 10000, //milliseconds
+        headers : {
+            'X-CSRF-TOKEN' : deleteCSRF,
+            'X-DB-CONN' : 'db-sys',
+            'X-DB-TABLE' : '_ubis_level',
+        },
+        data : {
+            code: delActive.code
+        },
+        beforeSend: function( jqXHR, settings ){
+
+        },
+        complete: function( jqXHR, textStatus ){
+            dismissDeleteModal();
+        },
+        error: function( jqXHR, textStatus, errorThrown ){
+            hideLoader();
+            showErrorModal("UBISlevel failed to deleted","REMOVE UBIS",5000);
+        },
+        success: function( data, textStatus, jqXHR ){
+            //console.log(data);
+            if(data.ret != undefined && data.csrf != undefined && data.ret){
+                deleteCSRF = data.csrf;
+                tableUBISlevel.find("tr#row_ubis_level_"+delActive.code).remove();
+                hideLoader();
+                showNotifModal("UBISlevel has been deleted","REMOVE UBIS",2000);
+                setTimeout(function(){location.reload();},2000);
+            }else{
+                hideLoader();
+                showErrorModal("UBISlevel failed to deleted","REMOVE UBIS",5000);
+            }
+        }
+    });
+}
+
+$(document).ready(function(){
+    tableUBISlevel = $("#table-ubislevel");
+    tableUBISlevel.DataTable();
+
+    deleteModal = $("#deleteModal");
+});
+})(jQuery); 
+<?php
+$this->headScript()->captureEnd();
+?>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="data-table-list">
+                <div class="basic-tb-hd">
+                    <div class="pull-right">
+                        <a class="btn bg-default" href="<?= $this->url('admin/manage-ubislevel/add-ubislevel');?>"><i class="fas fa-plus"></i> ADD UBIS LEVEL</a>
+                    </div>
+                    <h2>BU (Business Unit) Level List</h2>
+                    <p>System Administration</p>
+                </div>
+                <div class="table-responsive">
+                    <table id="table-ubislevel" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                            <?php
+                            foreach ($this->arr_keys as $k=>$v) {
+                            ?>
+                                <th data-field="<?= $k; ?>" style="white-space: nowrap;" nowrap><?= $v; ?></th>
+                            <?php
+                            }
+                            ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            // !d($this->ubislevel,$this->arr_keys);
+                            foreach ($this->ubislevel as $k=>$v) {
+                            ?>
+                            <tr id="row_ubis_level_<?= $v['code']; ?>">
+                                <?php
+                                foreach ($this->arr_keys as $k2=>$v2) {
+                                    // !d($v,$k2);
+                                    if($k2===0){
+                                ?>
+                                    <td data-field="_act_" data-row="<?= $k; ?>" style="white-space: nowrap;" nowrap>
+                                        <button data-toggle="tooltip" data-placement="top" data-original-title="Delete UBISlevel" data-code="<?= $v['code']; ?>" data-row="<?= $k; ?>" class="btn btn-xs btn-danger" onclick="showDeleteModal('<?= $v['code']; ?>','<?= $v['name']; ?>')"><i class="fas fa-times"></i> DELETE</button>
+                                        <a data-toggle="tooltip" data-placement="top" data-original-title="Edit UBISlevel" data-code="<?= $v['code']; ?>" data-row="<?= $k; ?>" class="btn btn-xs btn-primary" href="<?= $this->url('admin/manage-ubislevel/edit-ubislevel',['code'=>$v['code']]);?>"><i class="fas fa-edit"></i> EDIT</a>
+                                    </td>
+                                <?php  
+                                    }else{
+                                        ?>
+                                    <td data-field="<?= $k2; ?>" data-row="<?= $k; ?>" style="white-space: nowrap;" nowrap><?= $v[$k2]; ?></td>
+                                <?php
+                                    }
+                                }
+                                ?>
+                            </tr>
+                            <?php
+                            }
+                            ?>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                            <?php
+                            foreach ($this->arr_keys as $k=>$v) {
+                            ?>
+                                <th data-id="<?= $k; ?>" style="white-space: nowrap;" nowrap><?= $v; ?></th>
+                            <?php
+                            }
+                            ?>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteModal" ubislevel="dialog">
+    <div class="modal-dialog  modal-sm modals-default nk-red">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h2>DELETE UBIS</h2>
+                <p>Are you sure to remove this ubislevel?</p>
+                <table class="text-white font-weight-bold">
+                    <tr>
+                        <td>UBISlevel Code</td><td>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;</td><td id="delModal_code"></td>
+                    </tr>
+                    <tr>
+                        <td>UBISlevel Name </td><td>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;</td><td id="delModal_ubis_levelname"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" onclick="deleteUBISlevel()">DELETE</button>
+                <button type="button" class="btn btn-default" onclick="dismissDeleteModal()">CANCEL</button>
+            </div>
+        </div>
+    </div>
+</div>

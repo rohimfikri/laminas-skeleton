@@ -10,9 +10,11 @@ declare(strict_types=1);
 
 namespace Core;
 
-use Laminas\Router\Http\Literal;
-use Laminas\Router\Http\Segment;
+// use Laminas\Router\Http\Literal;
+// use Laminas\Router\Http\Segment;
 // !d(ManagerInterface::class);die();
+// $tmp = include __DIR__.'/controllers.config.php';
+// !d(APP_PATH);//die();
 
 return [
     'view_manager' => [
@@ -43,4 +45,11 @@ return [
             'ViewFeedStrategy', // register Feed renderer strategy
         ],
     ],
+    // 'view_helper_config' => [
+    //     'flashmessenger' => [
+    //         'message_open_format'      => '<div%s><button type="button" class="close"data-dismiss="alert" aria-hidden="true">&times;</button><ul><li>',
+    //         'message_close_string'     => '</li></ul></div>',
+    //         'message_separator_string' => '</li><li>',
+    //     ],
+    // ],
 ];

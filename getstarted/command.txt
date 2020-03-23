@@ -1,0 +1,2 @@
+.\mysqldump.exe -u root -v -R lam_sys > lam_sys.sql
+mysql -u root lam_sys < lam_sys.sql

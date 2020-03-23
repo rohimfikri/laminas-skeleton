@@ -42,10 +42,10 @@ class TopMenu extends AbstractHelper {
         if($uid!="" && $uid!=null){
             $MenuModel = $this->container->get(\App\Model\MenuModel::class);
             $menus = $MenuModel->getMenuByUidByLayoutByModule($uid,$layout,$module,$fromcache);
-            // !d($menus);die();
+            // !d($menus);//die();
             if(count($menus)>0){
                 foreach($menus as $v){
-                    if($v['parent']=="0" && !in_array($v['id'],$this->topMenuKey)){
+                    if($v['parent']==="0" && !in_array($v['id'],$this->topMenuKey)){
                         if(($v['url']!=null && $v['url']!="") || ($v['route']!=null && $v['route']!="")){
                             $this->topMenuKey[] = $v['id'];
                             $par = json_encode($v['param'],true);
@@ -59,7 +59,7 @@ class TopMenu extends AbstractHelper {
                                 "icon"=>$v['icon']
                             ];
                         }
-                    }else if(($v['parent']==null || $v['parent']=="") && $v['url']=="#"
+                    }else if(($v['parent']===null || $v['parent']==="") && $v['url']==="#"
                     && !in_array($v['id'],$this->topMenuKey) && !in_array($v['id'],$this->menu1Key)){
                         $this->menu1Key[] = $v['id'];
                         $this->menu1["topmenu".$v['id']] = [
@@ -120,6 +120,8 @@ class TopMenu extends AbstractHelper {
                 }
             }
         }
+
+        // !d($this->topMenuKey,$this->topMenu);
     }
 
     public function setVars($vars){

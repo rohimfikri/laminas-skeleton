@@ -1,15 +1,56 @@
+<?php 
+    use Laminas\Router\Exception as LaminasException;
+    // !d($this->vars,$this->identity()); 
+    $this->notikaNotif()->setVars($this->vars);
+    $this->notikaNotif()->setIdentity($this->identity());
+    $this->notikaNotif()->reloadNotif();
+    $inbox = $this->notikaNotif()->getUnreadInbox();
+    $alert = $this->notikaNotif()->getUnreadAlert();
+    // !d($inbox,$alert);die(); 
+    $maxinbox = 0;
+    $maxalert = 0;
+    // !d($this->vars);
+    $routequery = $this->vars['route_query'];
+    $routequery['fromcache']=0;
+?>
+<style>
+@media (max-width: 767px){
+    .header-top-menu .nav.notika-top-nav li .message-dd.chat-dd {
+        left: -130px;
+    }
+}
+</style>
 <div class="header-top-area">
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
                 <div class="logo-area">
-                    <a href="<?= $this->url("app");?>" id="logo-head">
-                        <?= _APP_NAME_; ?>
+                    <a href="<?= $this->url($this->vars['route_name'],$this->vars['route_param'],['query'=>$routequery]);?>" id="logo-head">
+                        <div class="" style="display:inline-block;vertical-align:middle;">
+                        <!-- <?= _APP_NAME_; ?> -->
                         <?php
                             if($this->vars->menuTitle==true && $this->vars->menuTitle !=null){
-                                echo " | ".$this->vars->menuTitle;
+                                echo $this->vars->menuTitle." | ";
                             }; 
                         ?>
+                        </div>
+                        <div class="" style="display:inline-block;vertical-align:middle;text-align:left">
+                            <div style="font-size:0.7rem">
+                        <?php
+                            if(isset($this->identity()['username']) !=null){
+                                // echo $this->identity()['username'].' - '.$this->identity()['full_name'];
+                                echo $this->identity()['username'];
+                            }; 
+                        ?>
+                            </div>
+                            <div style="font-size:0.7rem;font-weight:normal;">
+                        <?php
+                            if(isset($this->identity()['mainrole_data']) !=null){
+                                echo $this->identity()['mainrole_data']['name'].' - '.($this->identity()['mainubis_data']['name']??'GUEST');
+                            }; 
+                        ?>
+                            </div>
+                        </div>
                     </a>
                 </div>
             </div>
@@ -27,67 +68,52 @@
                                     <i class="notika-icon notika-mail"></i></span>
                                 <div class="spinner4 spinner-4"></div>
                                 <div class="ntd-ctn">
-                                    <span>2</span></div></a>
-                                <div role="menu" class="dropdown-menu message-dd chat-dd animated zoomIn">
-                                <div class="hd-mg-tt">
-                                    <h2>Messages</h2>
+                                    <span id="inbox-count"><?php echo $this->notikaNotif()->getTotalUnreadInbox(); ?></span>
                                 </div>
-                                <div class="hd-message-info">
-                                    <a href="#">
-                                        <div class="hd-message-sn">
+                            </a>
+                            <div role="menu" class="dropdown-menu message-dd chat-dd animated zoomIn">
+                                <div class="hd-mg-tt">
+                                    <h2>Inbox</h2>
+                                </div>
+                                <div id="inbox-notif" class="hd-message-info" style="max-height: 300px;overflow-y: auto;overflow-x: hidden;">
+                                <?php
+                                foreach ($inbox as $v) {
+                                    $link = $v['link'];
+                                    if($link=="" || $link=="#"){
+                                        if($v['route_link']!=""){
+                                            try{
+                                                $link = $this->url($v['route_link'],$v['route_param'],$v['route_query']);
+                                            }catch(LaminasException\RuntimeException $e){
+                                                $link = "#";
+                                            }
+                                        }
+                                    }
+                                ?>
+                                    <a href="<?php echo $link;?>">
+                                        <div class="hd-message-sn <?= $v['class']; ?>">
                                             <div class="hd-message-img">
-                                                <img src="<?= $this->basePath("/vendor/notika/img/post/1.jpg"); ?>" alt=""/>
+                                                <?php
+                                                if ($v['img']!="") {
+                                                    ?>
+                                                <img src="<?= $v['img']; ?>" alt=""/>
+                                                <?php
+                                                }else if($v['icon']!=""){
+                                                ?>
+                                                <i class="<?= $v['icon']; ?>" style="font-size:2.5rem;padding:0.5rem;"></i>
+                                                <?php
+                                                }
+                                                ?>
                                             </div>
                                             <div class="hd-mg-ctn">
-                                                <h3>David Belle</h3>
-                                                <p>Cum sociis natoque penatibus et magnis dis parturient montes</p>
+                                                <h3><?php echo $v['title'];?></h3>
+                                                <p><?php echo $v['content'];?></p>
                                             </div>
                                         </div>
                                     </a>
-                                    <a href="#">
-                                        <div class="hd-message-sn">
-                                            <div class="hd-message-img">
-                                                <img src="<?= $this->basePath("/vendor/notika/img/post/2.jpg"); ?>" alt=""/>
-                                            </div>
-                                            <div class="hd-mg-ctn">
-                                                <h3>Jonathan Morris</h3>
-                                                <p>Cum sociis natoque penatibus et magnis dis parturient montes</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#">
-                                        <div class="hd-message-sn">
-                                            <div class="hd-message-img">
-                                                <img src="<?= $this->basePath("/vendor/notika/img/post/4.jpg"); ?>" alt=""/>
-                                            </div>
-                                            <div class="hd-mg-ctn">
-                                                <h3>Fredric Mitchell</h3>
-                                                <p>Cum sociis natoque penatibus et magnis dis parturient montes</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#">
-                                        <div class="hd-message-sn">
-                                            <div class="hd-message-img">
-                                                <img src="<?= $this->basePath("/vendor/notika/img/post/1.jpg"); ?>" alt=""/>
-                                            </div>
-                                            <div class="hd-mg-ctn">
-                                                <h3>David Belle</h3>
-                                                <p>Cum sociis natoque penatibus et magnis dis parturient montes</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#">
-                                        <div class="hd-message-sn">
-                                            <div class="hd-message-img">
-                                                <img src="<?= $this->basePath("/vendor/notika/img/post/2.jpg"); ?>" alt=""/>
-                                            </div>
-                                            <div class="hd-mg-ctn">
-                                                <h3>Glenn Jecobs</h3>
-                                                <p>Cum sociis natoque penatibus et magnis dis parturient montes</p>
-                                            </div>
-                                        </div>
-                                    </a>
+                                <?php
+                                    if($maxinbox<(int)$v['id'])$maxinbox = (int)$v['id'];
+                                }
+                                ?>
                                 </div>
                                 <div class="hd-mg-va">
                                     <a href="#">View All</a>
@@ -106,68 +132,51 @@
                                 </span>
                                 <div class="spinner4 spinner-4"></div>
                                 <div class="ntd-ctn">
-                                    <span>3</span></div>
+                                    <span id="alert-count"><?php echo $this->notikaNotif()->getTotalUnreadAlert(); ?></span></div>
                             </a>
                             <div role="menu" class="dropdown-menu message-dd chat-dd animated zoomIn">
                                 <div class="hd-mg-tt">
-                                    <h2>Notification</h2>
+                                    <h2>Alert</h2>
                                 </div>
-                                <div class="hd-message-info">
-                                    <a href="#">
-                                        <div class="hd-message-sn">
+                                <div id="alert-notif" class="hd-message-info" style="max-height: 300px;overflow-y: auto;overflow-x: hidden;">
+                                <?php
+                                foreach ($alert as $v) {
+                                    $link = $v['link'];
+                                    if($link=="" || $link=="#"){
+                                        if($v['route_link']!=""){
+                                            try{
+                                                $link = $this->url($v['route_link'],$v['route_param'],$v['route_query']);
+                                            }catch(LaminasException\RuntimeException $e){
+                                                $link = "#";
+                                            }
+                                        }
+                                    }
+                                ?>
+                                    <a href="<?php echo $link;?>">
+                                        <div class="hd-message-sn <?= $v['class']; ?>">
                                             <div class="hd-message-img">
-                                                <img src="<?= $this->basePath("/vendor/notika/img/post/1.jpg"); ?>" alt=""/>
+                                                <?php
+                                                if ($v['img']!="") {
+                                                    ?>
+                                                <img src="<?= $v['img']; ?>" alt=""/>
+                                                <?php
+                                                }else if($v['icon']!=""){
+                                                ?>
+                                                <i class="<?= $v['icon']; ?>" style="font-size:2.5rem;padding:0.5rem;"></i>
+                                                <?php
+                                                }
+                                                ?>
                                             </div>
                                             <div class="hd-mg-ctn">
-                                                <h3>David Belle</h3>
-                                                <p>Cum sociis natoque penatibus et magnis dis parturient montes</p>
+                                                <h3><?php echo $v['title'];?></h3>
+                                                <p><?php echo $v['content'];?></p>
                                             </div>
                                         </div>
                                     </a>
-                                    <a href="#">
-                                        <div class="hd-message-sn">
-                                            <div class="hd-message-img">
-                                                <img src="<?= $this->basePath("/vendor/notika/img/post/2.jpg"); ?>" alt=""/>
-                                            </div>
-                                            <div class="hd-mg-ctn">
-                                                <h3>Jonathan Morris</h3>
-                                                <p>Cum sociis natoque penatibus et magnis dis parturient montes</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#">
-                                        <div class="hd-message-sn">
-                                            <div class="hd-message-img">
-                                                <img src="<?= $this->basePath("/vendor/notika/img/post/4.jpg"); ?>" alt=""/>
-                                            </div>
-                                            <div class="hd-mg-ctn">
-                                                <h3>Fredric Mitchell</h3>
-                                                <p>Cum sociis natoque penatibus et magnis dis parturient montes</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#">
-                                        <div class="hd-message-sn">
-                                            <div class="hd-message-img">
-                                                <img src="<?= $this->basePath("/vendor/notika/img/post/1.jpg"); ?>" alt=""/>
-                                            </div>
-                                            <div class="hd-mg-ctn">
-                                                <h3>David Belle</h3>
-                                                <p>Cum sociis natoque penatibus et magnis dis parturient montes</p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="#">
-                                        <div class="hd-message-sn">
-                                            <div class="hd-message-img">
-                                                <img src="<?= $this->basePath("/vendor/notika/img/post/2.jpg"); ?>" alt=""/>
-                                            </div>
-                                            <div class="hd-mg-ctn">
-                                                <h3>Glenn Jecobs</h3>
-                                                <p>Cum sociis natoque penatibus et magnis dis parturient montes</p>
-                                            </div>
-                                        </div>
-                                    </a>
+                                <?php
+                                    if($maxalert<(int)$v['id'])$maxalert = (int)$v['id'];
+                                }
+                                ?>
                                 </div>
                                 <div class="hd-mg-va">
                                     <a href="#">View All</a>
@@ -181,7 +190,7 @@
                                 aria-expanded="false"
                                 class="nav-link">
                                 <strong><span>
-                                    <i class="fa fa-sign-out"></i>
+                                    <i class="fas fa-sign-out-alt"></i>
                                 </span></strong>
                             </a>
                         </li>
@@ -191,3 +200,39 @@
         </div>
     </div>
 </div>
+
+<script>
+let inboxDOM;
+let alertDOM;
+let inboxCount = <?php echo $this->notikaNotif()->getTotalUnreadInbox(); ?>;
+let alertCount = <?php echo $this->notikaNotif()->getTotalUnreadAlert(); ?>;
+let maxunreadinbox = <?= $maxinbox; ?>;
+// let unreadinbox = {
+//     "unread_inbox1":{
+//         "title":"Message from X","link":"https:\/\/facebook.com",
+//         "icon":"fa fa-facebook","class":"nk-purple","img":null,"id":"1",
+//         "content":"Fusce eget dolor id justo luctus the commodo vel pharetra ni"
+//     },
+//     "unread_inbox2":{
+//         "title":"Message form Y","link":"https:\/\/google.com",
+//         "icon":"fa fa-google","class":"nk-teal","id":"2",
+//         "img":null,"content":"Fusce eget dolor id justo luctus the commodo vel pharetra ni"
+//     }
+// };
+let unreadinbox = {};
+let maxunreadalert = <?= $maxalert; ?>;
+// let unreadalert = {
+//     "unread_alert1":{
+//         "title":"Alert from X","link":"https:\/\/facebook.com",
+//         "route_link":null,"route_param":[],"route_query":[],
+//         "icon":"fa fa-facebook","class":"nk-purple","img":null,"id":"1",
+//         "content":"Fusce eget dolor id justo luctus the commodo vel pharetra ni"
+//     },
+//     "unread_alert2":{
+//         "title":"Alert form Y","link":"https:\/\/google.com","route_link":null,
+//         "route_param":[],"route_query":[],"icon":"fa fa-google","class":"nk-teal","id":"2",
+//         "img":null,"content":"Fusce eget dolor id justo luctus the commodo vel pharetra ni"
+//     }
+// };
+let unreadalert = {};
+</script>

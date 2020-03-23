@@ -1,5 +1,6 @@
 <?php
 require __DIR__ . '/constant.php';
+require __DIR__ . '/var.php';
 
 Kint::$enabled_mode = _DEBUG_;
 

@@ -2,6 +2,10 @@ php_flag allow_url_fopen off
 Options -Indexes
 RewriteEngine On
 
+Header set X-Frame-Options "sameorigin"
+Header set X-XSS-Protection "1"
+Header set X-Content-Type-Options "nosniff"
+
 RewriteCond %{REQUEST_METHOD} ^(OPTION|CONNECT|DEBUG|DELETE|MOVE|PUT|TRACE|TRACK) [NC]
 RewriteRule .* - [F,L]
 

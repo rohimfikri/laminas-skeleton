@@ -3,11 +3,11 @@ body {
     padding-bottom: 40px;
 }
 
-.zf-green {
+.zf-success2 {
     color: #68b604;
 }
 
-.btn-success {
+.btn-success2 {
     background-color: #57a900;
     background-image: -moz-linear-gradient(top, #70d900, #57a900);
     background-image: -ms-linear-gradient(top, #70d900, #57a900);
@@ -18,11 +18,11 @@ body {
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#70d900', endColorstr='#57a900', GradientType=0);
 }
 
-.btn-success:hover,
-.btn-success:active,
-.btn-success.active,
-.btn-success.disabled,
-.btn-success[disabled] {
+.btn-success2:hover,
+.btn-success2:active,
+.btn-success2.active,
+.btn-success2.disabled,
+.btn-success2[disabled] {
     background-color: #57a900;
 }
 
@@ -30,4 +30,8 @@ div.container a.navbar-brand > img {
     display: inline;
     margin-right: 4px;
     margin-top: -2px;
+}
+
+.header-top-area, .footer-copyright-area {
+    padding: .2rem 1rem;
 }

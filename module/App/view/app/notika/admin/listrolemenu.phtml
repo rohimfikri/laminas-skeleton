@@ -1,0 +1,211 @@
+<script>
+"use strict";
+let tableRoleMenu;
+let deleteModal;
+let delActive = {};
+let showDeleteModal,dismissDeleteModal,deleteRoleMenu,deleteAjax,deleteCSRF;
+</script>
+<?php
+$this->headScript()->captureStart();
+?>
+"use strict";
+(function ($) {
+deleteAjax = null;
+deleteCSRF = '<?= $this->csrf; ?>';
+
+showDeleteModal = function(mid,module,layout,title,role,rolename){
+    deleteModal.find("#delModal_mid").html(mid);
+    deleteModal.find("#delModal_module").html(module);
+    deleteModal.find("#delModal_layout").html(layout);
+    deleteModal.find("#delModal_title").html(title);
+    deleteModal.find("#delModal_role").html(role);
+    deleteModal.find("#delModal_rolename").html(rolename);
+    delActive = {
+        mid : mid,
+        role : role
+    };
+    deleteModal.modal("show");
+}
+
+dismissDeleteModal = function(){
+    deleteModal.find("#delModal_mid").html("");
+    deleteModal.find("#delModal_module").html("");
+    deleteModal.find("#delModal_layout").html("");
+    deleteModal.find("#delModal_title").html("");
+    deleteModal.find("#delModal_role").html("");
+    deleteModal.find("#delModal_rolename").html("");
+    delActive = {};
+    deleteModal.modal("hide");
+}
+
+deleteRoleMenu = function(){
+    //console.log(delActive);
+    //return false;
+    if(deleteAjax!=null)deleteAjax.abort();
+    showLoader();
+    deleteAjax = $.ajax({
+        url : "<?= $this->url('ajax/data-generator/deleteSQL'); ?>",
+        async : true,
+        cache : false,
+        method : "POST",
+        processData : true,
+        //contentType : 'json',
+        dataType : 'json',
+        crossDomain : false,
+        timeout : 10000, //milliseconds
+        headers : {
+            'X-CSRF-TOKEN' : deleteCSRF,
+            'X-DB-CONN' : 'db-sys',
+            'X-DB-TABLE' : '_role_menu',
+        },
+        data : {
+            menu: delActive.mid,
+            role: delActive.role
+        },
+        beforeSend: function( jqXHR, settings ){
+
+        },
+        complete: function( jqXHR, textStatus ){
+            dismissDeleteModal();
+        },
+        error: function( jqXHR, textStatus, errorThrown ){
+            hideLoader();
+            showErrorModal("Role Menu failed to deleted","REMOVE ROLE MENU",5000);
+        },
+        success: function( data, textStatus, jqXHR ){
+            //console.log(data);
+            if(data.ret != undefined && data.csrf != undefined && data.ret){
+                deleteCSRF = data.csrf;
+                tableRoleMenu.find("tr#row_rolemenu_"+delActive.mid+"_"+delActive.role).remove();
+                hideLoader();
+                showNotifModal("Role Menu has been deleted","REMOVE ROLE MENU",2000);
+                
+                setTimeout(function(){location.reload();},2000);
+            }else{
+                hideLoader();
+                showErrorModal("Role Menu failed to deleted","REMOVE ROLE MENU",5000);
+            }
+        }
+    });
+}
+
+$(document).ready(function(){
+    tableRoleMenu = $("#table-rolemenu");
+    tableRoleMenu.DataTable();
+
+    deleteModal = $("#deleteModal");
+});
+})(jQuery); 
+<?php
+$this->headScript()->captureEnd();
+?>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+            <div class="data-table-list">
+                <div class="basic-tb-hd">
+                    <div class="pull-right">
+                        <a class="btn bg-default" href="<?= $this->url('admin/manage-rolemenu/add-rolemenu');?>"><i class="fas fa-plus"></i> ADD ROLE MENU</a>
+                    </div>
+                    <h2>Role Menu List</h2>
+                    <p>System Administration</p>
+                </div>
+                <div class="table-responsive">
+                    <table id="table-rolemenu" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                            <?php
+                            foreach ($this->arr_keys as $k=>$v) {
+                            ?>
+                                <th data-field="<?= $k; ?>" style="white-space: nowrap;" nowrap><?= $v; ?></th>
+                            <?php
+                            }
+                            ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            // !d($this->menus,$this->arr_keys);
+                            foreach ($this->menus as $k=>$v) {
+                            ?>
+                            <tr id="row_rolemenu_<?= $v['menu'].'_'.$v['role']; ?>">
+                                <?php
+                                foreach ($this->arr_keys as $k2=>$v2) {
+                                    // !d($v,$k2);
+                                    if($k2===0){
+                                ?>
+                                    <td data-field="_act_" data-row="<?= $k; ?>" style="white-space: nowrap;" nowrap>
+                                        <button data-toggle="tooltip" data-placement="top" data-original-title="Delete Role Menu" 
+                                        data-menu="<?= $v['menu']; ?>" data-role="<?= $v['role']; ?>" data-row="<?= $k; ?>" 
+                                        class="btn btn-xs btn-danger" onclick="showDeleteModal('<?= $v['menu']; ?>','<?= $v['menu_module']; ?>','<?= $v['menu_layout']; ?>','<?= $v['menu_title']; ?>','<?= $v['role']; ?>','<?= $v['role_name']; ?>')"><i class="fas fa-times"></i> DELETE</button>
+                                        <a data-toggle="tooltip" data-placement="top" data-original-title="Edit Role Menu" 
+                                        data-menu="<?= $v['menu']; ?>" data-role="<?= $v['role']; ?>" data-row="<?= $k; ?>" 
+                                        class="btn btn-xs btn-primary" href="<?= $this->url('admin/manage-rolemenu/edit-rolemenu',['menu'=>$v['menu'],'role'=>$v['role']]);?>"><i class="fas fa-edit"></i> EDIT</a>
+                                    </td>
+                                <?php  
+                                    }else{
+                                        ?>
+                                    <td data-field="<?= $k2; ?>" data-row="<?= $k; ?>" style="white-space: nowrap;" nowrap><?= ($k2==='icon')?'<i class="'.$v[$k2].'"></i> ':''; ?><?= $v[$k2]; ?></td>
+                                <?php
+                                    }
+                                }
+                                ?>
+                            </tr>
+                            <?php
+                            }
+                            ?>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                            <?php
+                            foreach ($this->arr_keys as $k=>$v) {
+                            ?>
+                                <th data-id="<?= $k; ?>" style="white-space: nowrap;" nowrap><?= $v; ?></th>
+                            <?php
+                            }
+                            ?>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteModal" role="dialog">
+    <div class="modal-dialog  modal-sm modals-default nk-red">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h2>DELETE ROLE MENU</h2>
+                <p>Are you sure to remove this role menu?</p>
+                <table class="text-white font-weight-bold">
+                    <tr>
+                        <td>MENU ID</td><td>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;</td><td id="delModal_mid"></td>
+                    </tr>
+                    <tr>
+                        <td>Module </td><td>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;</td><td id="delModal_module"></td>
+                    </tr>
+                    <tr>
+                        <td>Layout </td><td>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;</td><td id="delModal_layout"></td>
+                    </tr>
+                    <tr>
+                        <td>Title </td><td>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;</td><td id="delModal_title"></td>
+                    </tr>
+                    <tr>
+                        <td>Role </td><td>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;</td><td id="delModal_role"></td>
+                    </tr>
+                    <tr>
+                        <td>Role Name </td><td>&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;</td><td id="delModal_rolename"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" onclick="deleteRoleMenu()">DELETE</button>
+                <button type="button" class="btn btn-default" onclick="dismissDeleteModal()">CANCEL</button>
+            </div>
+        </div>
+    </div>
+</div>

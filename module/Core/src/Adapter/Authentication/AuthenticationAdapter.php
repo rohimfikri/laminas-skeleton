@@ -57,7 +57,7 @@ class AuthenticationAdapter implements AdapterInterface
     }
 
     private function getUser(){
-        if($this->db==null)return null;
+        if($this->db===null)return null;
         if (!$this->db->getDriver()->getConnection()->isConnected()) {
           $this->db->getDriver()->getConnection()->connect();
         }
@@ -84,13 +84,65 @@ class AuthenticationAdapter implements AdapterInterface
     }
 
     private function getPermission($id){
-        if($this->db==null)return [];
+        if($this->db===null)return [];
         if (!$this->db->getDriver()->getConnection()->isConnected()) {
           $this->db->getDriver()->getConnection()->connect();
         }
-        $sql = "CALL lam_sys.get_usermenu_byuid_layout_module(:uid,:theme,:module)";
+        $sql = "CALL lam_sys.get_userpermission_byuid(:uid)";
         // die($sql);
-        $statement = $this->db->createStatement($sql,["id"=>$id]);
+        $statement = $this->db->createStatement($sql,["uid"=>$id]);
+        // Debug::dump($statement);die();
+        $result    = $statement->execute();
+        // Debug::dump($result);die();
+        // Debug::dump($result);//die();
+        if ($this->db->getDriver()->getConnection()->isConnected()) {
+            $this->db->getDriver()->getConnection()->disconnect();
+        }
+        if (! $result instanceof ResultInterface || ! $result->isQueryResult()) {
+            // Debug::dump($resultSet);die('fff');
+            return [];
+        }else{
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            // Debug::dump($resultSet->toArray());die();
+            return $resultSet->toArray();
+        }
+    }
+
+    private function getRoles($id){
+        if($this->db===null)return [];
+        if (!$this->db->getDriver()->getConnection()->isConnected()) {
+          $this->db->getDriver()->getConnection()->connect();
+        }
+        $sql = "CALL lam_sys.get_userrole_byuid(:uid)";
+        // die($sql);
+        $statement = $this->db->createStatement($sql,["uid"=>$id]);
+        // Debug::dump($statement);die();
+        $result    = $statement->execute();
+        // Debug::dump($result);die();
+        // Debug::dump($result);//die();
+        if ($this->db->getDriver()->getConnection()->isConnected()) {
+            $this->db->getDriver()->getConnection()->disconnect();
+        }
+        if (! $result instanceof ResultInterface || ! $result->isQueryResult()) {
+            // Debug::dump($resultSet);die('fff');
+            return [];
+        }else{
+            $resultSet = new ResultSet();
+            $resultSet->initialize($result);
+            // Debug::dump($resultSet->toArray());die();
+            return $resultSet->toArray();
+        }
+    }
+
+    private function getUbis($id){
+        if($this->db===null)return [];
+        if (!$this->db->getDriver()->getConnection()->isConnected()) {
+          $this->db->getDriver()->getConnection()->connect();
+        }
+        $sql = "CALL lam_sys.get_userubis_byuid(:uid)";
+        // die($sql);
+        $statement = $this->db->createStatement($sql,["uid"=>$id]);
         // Debug::dump($statement);die();
         $result    = $statement->execute();
         // Debug::dump($result);die();
@@ -134,9 +186,11 @@ class AuthenticationAdapter implements AdapterInterface
         // Debug::dump($passwordHash2);//die('ddd');
 
         if ($bcrypt->verify($this->password, $passwordHash)) {
-            // $permission = $this->getPermission($user['id']);
-            // Debug::dump($permission);die('ddd');
-            // $this->restructureSession($user,$permission);
+            $roles = $this->getRoles($user['id']);
+            $ubis = $this->getUbis($user['id']);
+            $permission = $this->getPermission($user['id']);
+            // Debug::dump($permission);//die('ddd');
+            $this->restructureSession($user,$roles,$ubis,$permission);
             // Debug::dump($user);die('ddd');
             return new Result(
                     Result::SUCCESS,
@@ -150,89 +204,98 @@ class AuthenticationAdapter implements AdapterInterface
         }
     }
 
-    private function restructureSession(&$user,$roles){
+    private function restructureSession(&$user,$roles,$unit,$permission){
         //   Debug::dump($user);//die('ddd');
-        //   Debug::dump($roles);die('ddd');
+        //   Debug::dump($roles);//die('ddd');
+        // Debug::dump($permission);//die('ddd');
     
         $role = [];
-        $permission = [];
-        $layout = [];
+        $ubis = [];
+        $accessModule = [];
+        $accessRoute = [];
+        $user['mainrole_data'] = [];
         foreach ($roles as $key => $value) {
-        $role[(int)$value['role_id']] = [
-            'name'=>$value['role_name'],
-            'redirect'=>$value['role_redirect']
-        ];
-
-        if(!isset($layout[$value['module_name']])){
-            $layout[$value['module_name']] = [
-                'layout' => $value['module_layout'],
-                'controllers' => [] 
-            ];
+            $is_main = 0;
+            if ($value['code']===$user['main_role']) {
+                $is_main = 1;
+                $user['mainrole_data'] = $value;
+            }
+            $value['is_main'] =$is_main;
+            $role[$value['code']] = $value;
         }
+        
+        // usort($role, function($a, $b) {
+        //     $a['is_main'] = ($a['is_main'])??0;
+        //     $b['is_main'] = ($b['is_main'])??0;
+        //     return $a['is_main'] <=> $b['is_main'];
+        // });
+        $mainrole = $user['main_role'] ?? 'GUEST';
+        if(!isset($role[$mainrole]))$user['main_role'] = 'GUEST';
+        // Debug::dump($role);die('ddd');
 
-        if(!isset($layout[$value['module_name']]['controllers'][$value['controller_name']])){
-            $layout[$value['module_name']]['controllers'][$value['controller_name']] = [
-                'layout' => $value['controller_layout'],
-                'actions' => [] 
-            ];
+        $user['mainubis_data'] = [];
+        foreach ($unit as $key => $value) {
+            $is_main = 0;
+            if ($value['code']===$user['main_ubis']) {
+                $is_main = 1;
+                $user['mainubis_data'] = $value;
+            }
+            $value['is_main'] =$is_main;
+            $ubis[$value['code']] = $value;
         }
+        
+        // usort($ubis, function($a, $b) {
+        //     $a['is_main'] = ($a['is_main'])??0;
+        //     $b['is_main'] = ($b['is_main'])??0;
+        //     return $a['is_main'] <=> $b['is_main'];
+        // });
+        $mainubis = $user['main_ubis'] ?? 'GUEST';
+        if(!isset($ubis[$mainubis]))$user['main_ubis'] = 'GUEST';
 
-        if(!isset($layout[$value['module_name']]['controllers'][$value['controller_name']]['actions'][$value['action_name']])){
-            $layout[$value['module_name']]['controllers'][$value['controller_name']]['actions'][$value['action_name']] = [
-                'layout' => $value['action_layout']
-            ];
-        }
+        foreach ($permission as $key => $value) {
+            // !d($key,$value);die();
+            $layout = $value['layout']===null ? 'blank' : $value['layout'];
+            // if(!isset($accessLayout[$layout])){
+            //     $accessLayout[$layout] = [];
+            // }
 
-        if($value['flayout']!=null && $value['flayout']!=''){
-            if($value['fmodule_id']==$value['module_id'] && $value['fcontroller_id']=='0'){
-                $layout[$value['module_name']]['layout'] = $value['flayout'];
+            $module = $value['module_name']===null || $value['module_name']==="0" ? '*' : $value['module_name'];
+            if(!isset($accessModule[$module])){
+                $accessModule[$module] = [];
+                $accessLayout[$module] = [];
             }
 
-            if($value['fmodule_id']==$value['module_id'] && $value['fcontroller_id']==$value['controller_id'] && $value['faction_id']=='0'){
-                $layout[$value['module_name']]['controllers'][$value['controller_name']]['layout'] = $value['flayout'];
+            $controller = $value['control_name']===null || $value['control_name']==="0" ? '*' : $value['control_name'];
+            if(!isset($accessModule[$module][$controller])){
+                $accessModule[$module][$controller] = [];
+                $accessLayout[$module][$controller] = [];
             }
 
-            if($value['fmodule_id']==$value['module_id'] && $value['fcontroller_id']==$value['controller_id'] && $value['faction_id']==$value['action_id']){
-                $layout[$value['module_name']]['controllers'][$value['controller_name']]['actions'][$value['action_name']]['layout'] = $value['flayout'];
+            $action = $value['act_name']===null || $value['act_name']==="0" ? '*' : $value['act_name'];
+            if(!in_array($action,$accessModule[$module][$controller])){
+                $accessModule[$module][$controller][] = $action;
+                $accessLayout[$module][$controller][$action] = $layout;
+            }
+
+            $route = $value['route'];
+            if($route!==null && $route!=='' && !in_array($route,$accessRoute)){
+                $accessRoute[] = $route;
+                $accessLayout[$route] = $layout;
             }
         }
-
-        if($value['fmodule_id']=='0' && !isset($permission['*'])){
-            $permission['*'] = [
-                '*' => ['*']
-            ];
-        }
-
-        if(!isset($permission[$value['module_name']])){
-            $permission[$value['module_name']] = [];
-        }
-
-        if($value['fcontroller_id']=='0' && !isset($permission[$value['module_name']]['*'])){
-            $permission[$value['module_name']]['*'][] = '*';
-        }
-
-        if(!isset($permission[$value['module_name']][$value['controller_name']])){
-            $permission[$value['module_name']][$value['controller_name']] = [];
-        }
-
-        if($value['faction_id']=='0' && !in_array('*',$permission[$value['module_name']][$value['controller_name']])){
-            $permission[$value['module_name']][$value['controller_name']][] = '*';
-        }
-
-        if(!in_array($value['action_name'],$permission[$value['module_name']][$value['controller_name']])){
-            $permission[$value['module_name']][$value['controller_name']][] = $value['action_name'];
-        }
-        }
+        // !d($role,$accessLayout,$accessRoute);die('ddd');
         $user['roles'] = $role;
-        $user['permission'] = $permission;
-        $user['layout'] = $layout;
-    //   Debug::dump($user);die('ddd');
+        $user['ubis'] = $ubis;
+        $user['accessRoute'] = $accessRoute;
+        $user['accessModule'] = $accessModule;
+        $user['accessLayout'] = $accessLayout;
+        //   Debug::dump($user);die('ddd');
     }
 
     public function removeSessionData($identity){
         $init_container = $this->container->get("container_init");
         // !d($identity,$init_container);die();
-        if($this->db==null)return null;
+        if($this->db===null)return null;
         if (!$this->db->getDriver()->getConnection()->isConnected()) {
             $this->db->getDriver()->getConnection()->connect();
         }
@@ -273,5 +336,241 @@ class AuthenticationAdapter implements AdapterInterface
                 "affected_row"=>$result->getAffectedRows()
             ];
         } 
+    }
+
+    public function authAccess($authService, $matchedRoute, $controller, $actionName,&$viewModel)
+    {
+        // Debug::dump($this->config);
+        // Debug::dump($controllerName);
+        // Debug::dump($actionName);
+        // Debug::dump($viewModel);
+        // die('fff');
+        if(isset($this->config['controllers']['aliases'][$controller]))
+          $controller = $this->config['controllers']['aliases'][$controller];
+        // Debug::dump($controllerName);//die();
+        // $tmp = explode("\\", $controllerName);
+        // Debug::dump($tmp);//die();
+        $tmp = explode("\\", $controller);
+        if(count($tmp)!=3)return false;
+        $controllerName = str_replace("Controller", "", $tmp[2]);
+        $moduleName = $tmp[0];
+        $identity = $authService->getIdentity();
+
+        // Debug::dump($identity);
+        // Debug::dump($moduleName);
+        // Debug::dump($controllerName);
+        // Debug::dump($actionName);
+        // Debug::dump($viewModel);
+        // Debug::dump($GLOBALS['PUBLIC_CONTROLLER']);
+        // Debug::dump(isset($GLOBALS['PUBLIC_CONTROLLER'][$controllerName]));
+        // Debug::dump(in_array('*',$GLOBALS['PUBLIC_CONTROLLER'][$controllerName]));
+        // die();
+        if(isset($GLOBALS['PUBLIC_CONTROLLER'][$controller]) && 
+        in_array($actionName,$GLOBALS['PUBLIC_CONTROLLER'][$controller])){
+            if (isset($identity['accessLayout'][$moduleName][$controllerName][$actionName])) {
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName][$moduleName][$controllerName][$actionName]);
+            }else if(isset($identity['accessLayout'][$moduleName][$controllerName]['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName][$controllerName]['*']);
+            }else if(isset($identity['accessLayout'][$moduleName]['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName]['*']['*']);
+            }else if(isset($identity['accessLayout']['*']['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']['*']['*']);
+            }else if(isset($identity['accessLayout'][$moduleName]['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName]['*']);
+            }else if(isset($identity['accessLayout']['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']['*']);
+            }else if(isset($identity['accessLayout']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']);
+            }
+            return true;
+        }else if(isset($GLOBALS['PUBLIC_CONTROLLER'][$controller]) && 
+        in_array('*',$GLOBALS['PUBLIC_CONTROLLER'][$controller])){
+            if (isset($identity['accessLayout'][$moduleName][$controllerName][$actionName])) {
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName][$moduleName][$controllerName][$actionName]);
+            }else if(isset($identity['accessLayout'][$moduleName][$controllerName]['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName][$controllerName]['*']);
+            }else if(isset($identity['accessLayout'][$moduleName]['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName]['*']['*']);
+            }else if(isset($identity['accessLayout']['*']['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']['*']['*']);
+            }else if(isset($identity['accessLayout'][$moduleName]['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName]['*']);
+            }else if(isset($identity['accessLayout']['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']['*']);
+            }else if(isset($identity['accessLayout']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']);
+            }
+            return true;
+        }
+        // $identity = $this->authService->getIdentity();
+        // Debug::dump($identity['permission']);die();
+        // Debug::dump($this->authService->hasIdentity());die();
+        // Determine mode - 'restrictive' (default) or 'permissive'. In restrictive
+        // mode all controller actions must be explicitly listed under the 'access_filter'
+        // config key, and access is denied to any not listed action for unauthorized users.
+        // In permissive mode, if an action is not listed under the 'access_filter' key,
+        // access to it is permitted to anyone (even for not logged in users.
+        // Restrictive mode is more secure and recommended to use.
+
+        // Debug::dump($this->config["access_filter"]);die();
+        $accessfilter = $this->config["access_filter"] ?? [];
+        // Debug::dump($accessfilter);die();
+        $mode = $accessfilter['options']['mode']??'restrictive';
+        if ($mode!='restrictive' && $mode!='permissive')
+            throw new \Exception('Invalid access filter mode (expected either restrictive or permissive mode');
+        // Debug::dump($controllerName);//die();
+        // Debug::dump($accessfilter);die();
+        if (isset($accessfilter['controllers'][$controller])) {
+            $items = $accessfilter['controllers'][$controller];
+            // Debug::dump($items);die();
+            foreach ($items as $item) {
+                $actionList = $item['actions'];
+                $allow = $item['allow'];
+                // Debug::dump($actionList);//die();
+                // Debug::dump($allow);die();
+                if (is_array($actionList) && in_array($actionName, $actionList) ||
+                    $actionList==='*') {
+                    if ($allow==='*')
+                        return true; // Anyone is allowed to see the page.
+                    else if ($allow==='%' && $authService->hasIdentity())
+                        return true;
+                    else if ($allow==='@' && $authService->hasIdentity()) {
+                        // die('qqq');
+                        return $this->checkPermission($authService,$matchedRoute, $moduleName,$controllerName, $actionName,$viewModel); // Only authenticated user is allowed to see the page.
+                    } else {
+                        return false; // Access denied.
+                    }
+                }
+            }
+        }
+        return $this->checkPermission($authService,$matchedRoute, $moduleName, $controllerName, $actionName,$viewModel);
+
+
+
+        // Debug::dump($mode);die();
+        // In restrictive mode, we forbid access for unauthorized users to any
+        // action not listed under 'access_filter' key (for security reasons).
+        // if ($mode=='restrictive' && !$this->authService->hasIdentity())
+        return false;
+
+        // Permit access to this page.
+        // return true;
+    }
+
+    private function checkPermission($authService,$matchedRoute,$moduleName,$controllerName, $actionName,&$viewModel){
+        if ($authService->getIdentity()===null)return false;
+
+        $identity = $authService->getIdentity();
+        // Debug::dump($matchedRoute);
+        // Debug::dump($moduleName);
+        // Debug::dump($controllerName);
+        // Debug::dump($actionName);
+        // Debug::dump($identity);die();
+        $accessRoute = $identity['accessRoute'];
+        $accessModule = $identity['accessModule'];
+        // Debug::dump($accessModule);die();
+        // !d($tmp,$matchedRoute->getMatchedRouteName(),$controllerName,$actionName,$identity);die();
+        if(in_array($matchedRoute->getMatchedRouteName(),$accessRoute)){
+            if(isset($identity['accessLayout'][$matchedRoute->getMatchedRouteName()]))$viewModel->setTemplate('layout/'.$identity['accessLayout'][$matchedRoute->getMatchedRouteName()]);
+            return true;
+        }else if(isset($accessModule[$moduleName]) && isset($accessModule[$moduleName][$controllerName]) && 
+        in_array($actionName,$accessModule[$moduleName][$controllerName])){
+            if (isset($identity['accessLayout'][$moduleName][$controllerName][$actionName])) {
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName][$moduleName][$controllerName][$actionName]);
+            }else if(isset($identity['accessLayout'][$moduleName][$controllerName]['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName][$controllerName]['*']);
+            }else if(isset($identity['accessLayout'][$moduleName]['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName]['*']['*']);
+            }else if(isset($identity['accessLayout']['*']['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']['*']['*']);
+            }else if(isset($identity['accessLayout'][$moduleName]['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName]['*']);
+            }else if(isset($identity['accessLayout']['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']['*']);
+            }else if(isset($identity['accessLayout']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']);
+            }
+            return true;
+        }else if(isset($accessModule[$moduleName]) && isset($accessModule[$moduleName][$controllerName]) && 
+        in_array('*',$accessModule[$moduleName][$controllerName])){
+            if(isset($identity['accessLayout'][$moduleName][$controllerName]['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName][$controllerName]['*']);
+            }else if(isset($identity['accessLayout'][$moduleName]['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName]['*']['*']);
+            }else if(isset($identity['accessLayout']['*']['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']['*']['*']);
+            }else if(isset($identity['accessLayout'][$moduleName]['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName]['*']);
+            }else if(isset($identity['accessLayout']['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']['*']);
+            }else if(isset($identity['accessLayout']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']);
+            }
+            return true;
+        }else if(isset($accessModule[$moduleName]) && isset($accessModule[$moduleName]['*']) && 
+        in_array('*',$accessModule[$moduleName]['*'])){
+            if(isset($identity['accessLayout'][$moduleName]['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName]['*']['*']);
+            }else if(isset($identity['accessLayout']['*']['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']['*']['*']);
+            }else if(isset($identity['accessLayout'][$moduleName]['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout'][$moduleName]['*']);
+            }else if(isset($identity['accessLayout']['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']['*']);
+            }else if(isset($identity['accessLayout']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']);
+            }
+            return true;
+        }else if(isset($accessModule['*']) && isset($accessModule['*']['*']) && 
+        in_array('*',$accessModule['*']['*'])){
+            if(isset($identity['accessLayout']['*']['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']['*']['*']);
+            }else if(isset($identity['accessLayout']['*']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']['*']);
+            }else if(isset($identity['accessLayout']['*'])){
+                $viewModel->setTemplate('layout/'.$identity['accessLayout']['*']);
+            }
+            return true;
+        }else{
+            return false;
+        }
+
+        // Debug::dump($identity['permission']);//die();
+
+        // $permission = $identity['permission'];
+        // Debug::dump($tmp);
+        // Debug::dump($permission);//die();
+        // Debug::dump($tmp);//die();
+ // && in_array($actionName,$permission[$tmp[0]][$tmp[2]]))
+        // Debug::dump($permission[$tmp[0]]);//die();
+        // Debug::dump(isset($permission[$tmp[0]]));//die();
+        // Debug::dump((isset($permission[$tmp[0]][$controller]) && in_array($actionName,$permission[$tmp[0]][$controller]))
+        // ||
+        // (isset($permission['*']['*']) && in_array('*',$permission['*']['*']))
+        // ||
+        // (isset($permission['*'][$controller]) && in_array('*',$permission['*'][$controller]))
+        // ||
+        // (isset($permission[$tmp[0]][$controller]) && in_array('*',$permission[$tmp[0]][$controller]))
+        // ||
+        // (isset($permission['*']['*']) && in_array($actionName,$permission['*']['*']))
+        // ||
+        // (isset($permission['*'][$controller]) && in_array($actionName,$permission['*'][$controller]))
+        // ||
+        // (isset($permission[$tmp[0]][$controller]) && in_array($actionName,$permission[$tmp[0]][$controller])));die();
+        // return (
+        //     (isset($permission[$tmp[0]][$controller]) && in_array($actionName,$permission[$tmp[0]][$controller]))
+        //     ||
+        //     (isset($permission['*']['*']) && in_array('*',$permission['*']['*']))
+        //     ||
+        //     (isset($permission['*'][$controller]) && in_array('*',$permission['*'][$controller]))
+        //     ||
+        //     (isset($permission[$tmp[0]][$controller]) && in_array('*',$permission[$tmp[0]][$controller]))
+        //     ||
+        //     (isset($permission['*']['*']) && in_array($actionName,$permission['*']['*']))
+        //     ||
+        //     (isset($permission['*'][$controller]) && in_array($actionName,$permission['*'][$controller]))
+        //     ||
+        //     (isset($permission[$tmp[0]][$controller]) && in_array($actionName,$permission[$tmp[0]][$controller]))
+        // );
     }
 }

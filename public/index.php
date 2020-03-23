@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+ini_set('memory_limit', '1024M');
+// die('aaa');
 use Laminas\Mvc\Application;
 use Laminas\Stdlib\ArrayUtils;
 date_default_timezone_set("Asia/Jakarta");
@@ -53,6 +55,6 @@ $appConfig = require __DIR__ . '/../config/application.config.php';
 if (file_exists(__DIR__ . '/../config/development.config.php')) {
     $appConfig = ArrayUtils::merge($appConfig, require __DIR__ . '/../config/development.config.php');
 }
-
+// die('qqq');
 // Run the application!
 Application::init($appConfig)->run();
